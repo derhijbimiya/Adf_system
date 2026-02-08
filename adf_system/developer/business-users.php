@@ -88,25 +88,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $businessPdo) {
                     if (empty($password)) {
                         $error = 'Password is required for new user';
                     } else {
-                        // Check duplicate
-                        $check = $businessPdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                        // Get master database connection
+                        $masterPdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+                        $masterPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        
+                        // Check duplicate in MASTER database
+                        $check = $masterPdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
                         $check->execute([$username]);
+                        
                         if ($check->fetchColumn() > 0) {
-                            $error = 'Username already exists in this business';
+                            $error = 'Username already exists in system';
                         } else {
+                            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                            
+                            // 1. Create in MASTER database (for login)
+                            $masterStmt = $masterPdo->prepare("
+                                INSERT INTO users (username, password, full_name, email, phone, role_id, is_active)
+                                VALUES (?, ?, ?, ?, ?, 3, ?)
+                            ");
+                            $masterStmt->execute([$username, $hashedPassword, $fullName, $email, $phone, $isActive]);
+                            $masterUserId = $masterPdo->lastInsertId();
+                            
+                            // 2. Also create in BUSINESS database with same password
                             $stmt = $businessPdo->prepare("
                                 INSERT INTO users (username, password, full_name, email, phone, role, business_access, is_active)
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                             ");
-                            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                             $stmt->execute([$username, $hashedPassword, $fullName, $email, $phone, $role, $businessAccess, $isActive]);
                             
-                            $auth->logAction('create_business_user', 'users', $businessPdo->lastInsertId(), null, [
+                            $auth->logAction('create_business_user', 'users', $masterUserId, null, [
                                 'business' => $businessConfig['business_name'],
                                 'username' => $username
                             ]);
                             
-                            $_SESSION['success_message'] = "User '{$username}' created in {$businessConfig['business_name']}!";
+                            $_SESSION['success_message'] = "User '{$username}' created successfully and can now login!";
                             header("Location: business-users.php?business_id={$selectedBusinessId}");
                             exit;
                         }
@@ -115,12 +130,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $businessPdo) {
                     // Update
                     $updateId = (int)$_POST['user_id'];
                     
+                    // Get master database connection
+                    $masterPdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+                    $masterPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    
                     if (!empty($password)) {
+                        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                        
+                        // Update in MASTER database
+                        $masterStmt = $masterPdo->prepare("
+                            UPDATE users SET username = ?, password = ?, full_name = ?, email = ?, phone = ?, is_active = ?
+                            WHERE id = ?
+                        ");
+                        $masterStmt->execute([$username, $hashedPassword, $fullName, $email, $phone, $isActive, $updateId]);
+                        
+                        // Update in BUSINESS database
                         $stmt = $businessPdo->prepare("
                             UPDATE users SET username = ?, password = ?, full_name = ?, email = ?, phone = ?, role = ?, business_access = ?, is_active = ?
                             WHERE id = ?
                         ");
-                        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                         $stmt->execute([$username, $hashedPassword, $fullName, $email, $phone, $role, $businessAccess, $isActive, $updateId]);
                     } else {
                         $stmt = $businessPdo->prepare("
