@@ -74,8 +74,8 @@ class DevAuth {
             $_SESSION['dev_logged_in'] = true;
             $_SESSION['dev_login_time'] = time();
             
-            // Update last login
-            $this->pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
+            // Update last login (commented - column doesn't exist)
+            // $this->pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
             
             return ['success' => true, 'message' => 'Login berhasil', 'user' => $user];
         } catch (PDOException $e) {
