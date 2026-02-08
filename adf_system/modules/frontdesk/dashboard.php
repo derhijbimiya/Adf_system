@@ -106,6 +106,19 @@ try {
         AND DATE(b.check_out_date) = ?
     ", [$today]);
     $stats['expected_revenue'] = $expectedResult['total'] ?? 0;
+    
+    // OTA Revenue Today - More robust check
+    // If 'ota' is missed, maybe it's just in the allowed sources but payment_method is anything
+    // But since we enforced 'ota' as payment_method in JS, it should work.
+    // However, if manual payment inserted 'edc', it won't be counted here.
+    // Let's broaden the search or just rely on 'ota'.
+    $otaRevenueResult = $db->fetchOne("
+        SELECT COALESCE(SUM(bp.amount), 0) as total
+        FROM booking_payments bp
+        WHERE DATE(bp.payment_date) = ?
+        AND (LOWER(bp.payment_method) = 'ota' OR LOWER(bp.payment_method) = 'agoda' OR LOWER(bp.payment_method) = 'booking')
+    ", [$today]);
+    $stats['ota_revenue_today'] = $otaRevenueResult['total'] ?? 0;
 
     // 8. Guest Data for Today
     $guestsTodayResult = $db->fetchAll("
@@ -1359,7 +1372,7 @@ include '../../includes/header.php';
                     <div class="revenue-card-badge">Today</div>
                 </div>
                 <div class="revenue-card-body">
-                    <p class="revenue-card-label">Actual Revenue</p>
+                    <p class="revenue-card-label">Actual Revenue (Cash/Total)</p>
                     <h3 class="revenue-card-amount">
                         Rp <?php echo number_format($stats['revenue_today'], 0, ',', '.'); ?>
                     </h3>
@@ -1368,6 +1381,29 @@ include '../../includes/header.php';
                 <div class="revenue-card-footer">
                     <div class="revenue-progress-bar">
                         <div class="revenue-progress-fill revenue-progress-actual" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTA Revenue Card -->
+            <div class="revenue-card revenue-card-ota" style="background: linear-gradient(135deg, rgba(236,72,153,0.05) 0%, rgba(219,39,119,0.05) 100%); border: 1px solid rgba(236,72,153,0.2);">
+                <div class="revenue-card-header">
+                    <div class="revenue-card-icon" style="background: rgba(236,72,153,0.1); color: #db2777;">
+                        <span>🌐</span>
+                    </div>
+                    <div class="revenue-card-badge" style="background: rgba(236,72,153,0.1); color: #db2777;">OTA Only</div>
+                </div>
+                <div class="revenue-card-body">
+                    <p class="revenue-card-label" style="color: #db2777;">OTA Income</p>
+                    <h3 class="revenue-card-amount" style="color: #be185d;">
+                        Rp <?php echo number_format($stats['ota_revenue_today'], 0, ',', '.'); ?>
+                    </h3>
+                    <p class="revenue-card-desc">From Agoda, Booking.com, etc</p>
+                </div>
+                <div class="revenue-card-footer">
+                    <div class="revenue-progress-bar" style="background: rgba(236,72,153,0.1);">
+                        <div class="revenue-progress-fill" 
+                             style="width: <?php echo $stats['revenue_today'] > 0 ? min(100, ($stats['ota_revenue_today'] / $stats['revenue_today']) * 100) : 0; ?>%; background: linear-gradient(90deg, #ec4899, #db2777);"></div>
                     </div>
                 </div>
             </div>

@@ -77,7 +77,7 @@ try {
     if ($paymentMethod === 'qr') {
         $paymentMethod = 'qris';
     }
-    $allowedMethods = ['cash', 'card', 'transfer', 'qris', 'ota', 'bank_transfer', 'other'];
+    $allowedMethods = ['cash', 'card', 'transfer', 'qris', 'ota', 'bank_transfer', 'other', 'edc'];
     if (!in_array($paymentMethod, $allowedMethods, true)) {
         $paymentMethod = 'cash';
     }
@@ -87,13 +87,13 @@ try {
         'walk_in' => 'walk_in',
         'phone' => 'phone',
         'online' => 'online',
-        'agoda' => 'ota',
+        'agoda' => 'ota', // Map Agoda to ota so it inserts into DB correctly if ENUM restricted
         'booking' => 'ota',
         'tiket' => 'ota',
         'airbnb' => 'ota',
         'ota' => 'ota'
     ];
-    $bookingSource = $sourceMap[$bookingSource] ?? 'walk_in';
+    $dbBookingSource = $sourceMap[$bookingSource] ?? 'walk_in';
     
     // Validate dates
     $checkIn = new DateTime($checkInDate);
@@ -168,7 +168,7 @@ try {
         $checkInDate, $checkOutDate, $totalNights,
         $adultCount, $childrenCount,
         $roomPrice, $totalPrice, $discount, $finalPrice,
-        $bookingSource, $paymentStatus, $paidAmount,
+        $dbBookingSource, $paymentStatus, $paidAmount,
         $specialRequest
     ]);
 
@@ -180,20 +180,14 @@ try {
     
     // Create initial payment record if paid amount exists
     if ($paidAmount > 0) {
-        $columnInfo = $db->fetchOne("SHOW COLUMNS FROM booking_payments LIKE 'payment_method'");
-        if (!empty($columnInfo['Type']) && preg_match("/^enum\((.*)\)$/i", $columnInfo['Type'], $matches)) {
-            $enumValues = array_map(function ($value) {
-                return trim($value, "'\"");
-            }, explode(',', $matches[1]));
-            if (!in_array($paymentMethod, $enumValues, true)) {
-                $paymentMethod = $enumValues[0] ?? 'cash';
-            }
-        }
-
+        // ENUM check removed since we migrated to VARCHAR(50)
+        // Just insert payment parameters directly
+        $paymentDate = date('Y-m-d H:i:s');
+        
         $paymentStmt = $db->query("
-            INSERT INTO booking_payments (booking_id, amount, payment_method)
-            VALUES (?, ?, ?)
-        ", [$bookingId, $paidAmount, $paymentMethod]);
+            INSERT INTO booking_payments (booking_id, amount, payment_method, payment_date, created_at)
+            VALUES (?, ?, ?, ?, NOW())
+        ", [$bookingId, $paidAmount, $paymentMethod, $paymentDate]);
 
         if (!$paymentStmt) {
             throw new Exception('Failed to create payment record');

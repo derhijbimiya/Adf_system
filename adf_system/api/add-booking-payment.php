@@ -42,7 +42,7 @@ try {
         throw new Exception('Amount must be greater than 0');
     }
 
-    $validMethods = ['cash', 'card', 'transfer', 'qris', 'ota'];
+    $validMethods = ['cash', 'card', 'transfer', 'qris', 'ota', 'bank_transfer', 'other', 'edc'];
     if (!in_array($paymentMethod, $validMethods, true)) {
         $paymentMethod = 'cash';
     }

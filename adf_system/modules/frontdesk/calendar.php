@@ -28,6 +28,32 @@ if (!$auth->hasPermission('frontdesk')) {
 $pageTitle = 'Calendar Booking';
 
 // ============================================
+// GET OTA FEES (For Frontend Logic)
+// ============================================
+$otaFees = [
+    'direct' => 0,
+    'agoda' => 15,
+    'booking' => 12,
+    'tiket' => 10,
+    'traveloka' => 15,
+    'airbnb' => 3
+];
+try {
+    // Attempt to fetch from settings table if exists
+    $fees = $db->fetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'ota_fee_%'");
+    if ($fees) {
+        foreach ($fees as $fee) {
+            $key = str_replace(['ota_fee_', '_'], ['', ' '], $fee['setting_key']); // e.g., 'ota_fee_agoda' -> 'agoda'
+            // Normalize key for JS mapping
+            $normalizedKey = strtolower(str_replace(['.com', ' '], ['', '_'], $key));
+            $otaFees[$normalizedKey] = (float)$fee['setting_value'];
+        }
+    }
+} catch (Exception $e) {
+    // Keep defaults
+}
+
+// ============================================
 // GET CALENDAR DATE RANGE
 // ============================================
 $startDate = $_GET['start'] ?? date('Y-m-d');
@@ -365,7 +391,7 @@ body[data-theme="light"] .grid-room-type-header {
 .calendar-grid {
     display: grid;
     gap: 0;
-    grid-template-columns: 80px repeat(<?php echo count($dates); ?>, 60px);
+    grid-template-columns: 140px repeat(<?php echo count($dates); ?>, 90px);
     width: fit-content;
     min-width: fit-content;
     max-width: none;
@@ -387,14 +413,14 @@ body[data-theme="light"] .grid-room-type-header {
     position: sticky;
     left: 0;
     z-index: 40;
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     color: var(--text-primary);
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     letter-spacing: 0.2px;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 22px;
+    min-height: 32px;
 }
 
 /* Light theme - better header visibility */
@@ -412,10 +438,10 @@ body[data-theme="light"] .grid-header-room {
     padding: 0.1rem 0.05rem;
     text-align: center;
     font-weight: 600;
-    font-size: 0.45rem;
+    font-size: 0.65rem;
     color: var(--text-primary);
     position: relative;
-    min-height: 20px;
+    min-height: 32px;
 }
 
 /* Light theme - visible borders */
@@ -450,7 +476,7 @@ body[data-theme="light"] .grid-date-cell.today {
 
 .grid-header-date-day {
     display: block;
-    font-size: 0.4rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.15px;
     margin-bottom: 0.03rem;
@@ -460,7 +486,7 @@ body[data-theme="light"] .grid-date-cell.today {
 
 .grid-header-date-num {
     display: block;
-    font-size: 0.6rem;
+    font-size: 0.8rem;
     font-weight: 900;
     margin-bottom: 0.03rem;
     line-height: 1;
@@ -494,10 +520,10 @@ body[data-theme="light"] .grid-date-cell.today {
     flex-direction: column;
     justify-content: center;
     gap: 0.02rem;
-    min-width: 80px;
+    min-width: 140px;
     cursor: grab;
-    font-size: 0.6rem;
-    min-height: 22px;
+    font-size: 0.75rem;
+    min-height: 32px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Shadow to separate sidebar */
     white-space: normal;
     word-break: break-word;
@@ -525,9 +551,9 @@ body[data-theme="light"] .grid-room-label {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     gap: 0.25rem;
-    min-height: 25px; /* Slight increase for better spacing */
+    min-height: 30px; /* Slight increase for better spacing */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
@@ -559,7 +585,7 @@ body .booking-bar > span {
 }
 
 .grid-room-number {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     color: var(--text-primary);
     font-weight: 900;
     line-height: 1;
@@ -567,7 +593,7 @@ body .booking-bar > span {
 }
 
 .grid-room-type {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     font-weight: 600;
     line-height: 1;
@@ -582,7 +608,7 @@ body .booking-bar > span {
     border-right: 0.5px solid var(--border-color);
     border-bottom: 0.5px solid var(--border-color);
     padding: 0.08rem 0.05rem;
-    min-height: 22px;
+    min-height: 32px;
     position: relative;
     background: transparent;
     cursor: pointer;
@@ -622,7 +648,7 @@ body[data-theme="light"] .grid-date-cell {
     position: absolute;
     top: 1px;
     left: 1px;
-    height: 20px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -633,7 +659,7 @@ body[data-theme="light"] .grid-date-cell {
 
 .booking-bar {
     width: 100%;
-    height: 18px;
+    height: 24px;
     padding: 0 0.25rem;
     cursor: pointer;
     overflow: visible;
@@ -644,11 +670,11 @@ body[data-theme="light"] .grid-date-cell {
     transition: all 0.3s ease;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 2px 3px rgba(0, 0, 0, 0.15);
     font-weight: 700;
-    font-size: 0.6rem;
-    line-height: 1;
+    font-size: 0.7rem;
+    line-height: 1.2;
     position: relative;
     pointer-events: auto;
-    border-radius: 3px;
+    border-radius: 4px;
     white-space: nowrap;
     transform: skewX(-20deg);
     background: linear-gradient(135deg, #06b6d4, #22d3ee) !important;
@@ -671,7 +697,7 @@ body[data-theme="light"] .grid-date-cell {
 .booking-bar::before {
     content: '';
     position: absolute;
-    left: -8px;
+    left: -12px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
@@ -685,7 +711,7 @@ body[data-theme="light"] .grid-date-cell {
 .booking-bar::after {
     content: '';
     position: absolute;
-    right: -8px;
+    right: -12px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
@@ -1032,8 +1058,19 @@ body[data-theme="light"] .modal-content {
 /* RESERVATION FORM STYLES */
 .modal-content-large {
     max-width: 650px;
-    max-height: 85vh;
-    overflow-y: auto;
+    height: 90vh; /* Fixed height for flex container */
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Header/Footer static, body triggers scroll */
+}
+
+#reservationForm {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .modal-content-medium {
@@ -1416,6 +1453,95 @@ body[data-theme="light"] .btn-secondary {
     display: block;
     margin-top: 0.5rem;
 }
+
+/* Dashboard Stats Grid */
+.stats-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.stats-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    backdrop-filter: blur(10px);
+}
+
+body[data-theme="light"] .stats-card {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.stats-card h3 {
+    font-size: 0.8rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(99, 102, 241, 0.1);
+    padding-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.stats-list::-webkit-scrollbar {
+    width: 4px;
+}
+.stats-list::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 2px;
+}
+
+.stats-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1rem;
+}
+
+.stats-list li:last-child {
+    border-bottom: none;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.stat-meta {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.stat-tag {
+    font-size: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    color: white;
+}
 </style>
 
 <div class="calendar-container">
@@ -1439,6 +1565,45 @@ body[data-theme="light"] .btn-secondary {
             </a>
         </div>
     </div>
+
+    <?php
+    // DASHBOARD STATS FETCH
+    try {
+        // 1. RECENT RESERVATIONS (Newest ID)
+        $recentBookings = $db->fetchAll("
+            SELECT b.booking_code, b.status, b.check_in_date, g.guest_name 
+            FROM bookings b
+            LEFT JOIN guests g ON b.guest_id = g.id
+            ORDER BY b.id DESC LIMIT 5
+        ");
+
+        // 2. RECENT CHECK-INS
+        $recentCheckins = $db->fetchAll("
+            SELECT b.booking_code, b.status, b.room_id, b.check_in_date, g.guest_name, r.room_number 
+            FROM bookings b
+            LEFT JOIN guests g ON b.guest_id = g.id
+            LEFT JOIN rooms r ON b.room_id = r.id
+            WHERE b.status = 'checked_in'
+            ORDER BY b.check_in_date DESC, b.id DESC LIMIT 5
+        ");
+
+        // 3. RECENT CHECK-OUTS
+        $recentCheckouts = $db->fetchAll("
+            SELECT b.booking_code, b.status, b.room_id, b.check_out_date, g.guest_name, r.room_number 
+            FROM bookings b
+            LEFT JOIN guests g ON b.guest_id = g.id
+            LEFT JOIN rooms r ON b.room_id = r.id
+            WHERE b.status = 'checked_out'
+            ORDER BY b.check_out_date DESC, b.id DESC LIMIT 5
+        ");
+    } catch (Exception $e) {
+        $recentBookings = [];
+        $recentCheckins = [];
+        $recentCheckouts = [];
+    }
+    ?>
+
+
 
     <!-- Navigation -->
     <div class="calendar-nav">
@@ -1541,8 +1706,8 @@ body[data-theme="light"] .btn-secondary {
                                 $totalNights = ceil(($checkoutDate - $checkinDate) / 86400);
                                 
                                 // Calculate width: start from 50% of check-in cell, end at 50% of check-out cell
-                                // Width = (nights × 100px) = full span from noon to noon
-                                $barWidth = ($totalNights * 100); // 100px per day
+                                // Width = (nights × 90px) = full span from noon to noon (Matches CSS Grid Column Width)
+                                $barWidth = ($totalNights * 90); // 90px per day
                                 
                                 $statusClass = 'booking-' . str_replace('_', '-', $booking['status']);
                                 
@@ -1601,6 +1766,75 @@ body[data-theme="light"] .btn-secondary {
         <div class="legend-item">
             <div class="legend-color" style="background: linear-gradient(135deg, #9ca3af, #d1d5db); opacity: 0.4;"></div>
             <span class="legend-label">📭 Past Booking (History)</span>
+        </div>
+    </div>
+
+    <!-- DASHBOARD STATS WIDGETS -->
+    <div class="stats-dashboard-grid" style="margin-top: 2rem;">
+        <!-- New Reservations -->
+        <div class="stats-card">
+            <h3>📝 Reservasi Terbaru</h3>
+            <ul class="stats-list">
+                <?php if (empty($recentBookings)): ?>
+                    <li style="justify-content:center; color:var(--text-secondary);">Belum ada data</li>
+                <?php else: ?>
+                    <?php foreach($recentBookings as $rb): 
+                        $bName = $rb['guest_name'] ?? 'Guest';
+                        $bStats = str_replace('_', ' ', $rb['status']);
+                        $bColor = $rb['status'] == 'confirmed' ? '#3b82f6' : ($rb['status'] == 'pending' ? '#f59e0b' : '#10b981');
+                        if($rb['status'] == 'checked_out') $bColor = '#ef4444';
+                        if($rb['status'] == 'cancelled') $bColor = '#94a3b8';
+                    ?>
+                    <li>
+                        <div class="stat-info">
+                            <span class="stat-name"><?php echo htmlspecialchars(substr($bName, 0, 18)); ?></span>
+                            <span class="stat-meta"><?php echo htmlspecialchars($rb['booking_code']); ?></span>
+                        </div>
+                        <span class="stat-tag" style="background:<?php echo $bColor; ?>"><?php echo ucfirst($bStats); ?></span>
+                    </li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </ul>
+        </div>
+
+        <!-- Latest Check-ins -->
+        <div class="stats-card">
+            <h3>📥 Cekin Terbaru</h3>
+            <ul class="stats-list">
+                <?php if (empty($recentCheckins)): ?>
+                    <li style="justify-content:center; color:var(--text-secondary);">Belum ada data</li>
+                <?php else: ?>
+                    <?php foreach($recentCheckins as $rc): ?>
+                    <li>
+                        <div class="stat-info">
+                            <span class="stat-name"><?php echo htmlspecialchars(substr($rc['guest_name'] ?? '', 0, 18)); ?></span>
+                            <span class="stat-meta">Room <?php echo $rc['room_number']; ?> • <?php echo date('d M', strtotime($rc['check_in_date'])); ?></span>
+                        </div>
+                        <span class="stat-tag" style="background:#10b981">Active</span>
+                    </li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </ul>
+        </div>
+
+        <!-- Latest Check-outs -->
+        <div class="stats-card">
+            <h3>📤 Cek Out Terbaru</h3>
+            <ul class="stats-list">
+                <?php if (empty($recentCheckouts)): ?>
+                    <li style="justify-content:center; color:var(--text-secondary);">Belum ada data</li>
+                <?php else: ?>
+                    <?php foreach($recentCheckouts as $rco): ?>
+                    <li>
+                        <div class="stat-info">
+                            <span class="stat-name"><?php echo htmlspecialchars(substr($rco['guest_name'] ?? '', 0, 18)); ?></span>
+                            <span class="stat-meta">Room <?php echo $rco['room_number']; ?> • <?php echo date('d M', strtotime($rco['check_out_date'])); ?></span>
+                        </div>
+                        <span class="stat-tag" style="background:#ef4444">Done</span>
+                    </li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </ul>
         </div>
     </div>
 
@@ -1681,15 +1915,48 @@ function showBookingQuickView(booking) {
         'walk_in': 'Walk-in',
         'phone': 'Phone',
         'online': 'Online',
-        'ota': 'OTA'
+        'ota': 'OTA',
+        'agoda': 'Agoda',
+        'booking': 'Booking.com',
+        'tiket': 'Tiket.com',
+        'traveloka': 'Traveloka',
+        'airbnb': 'Airbnb'
     };
-    const source = sourceMap[booking.booking_source] || booking.booking_source;
+    // Capitalize source if not in map
+    let displaySource = sourceMap[booking.booking_source];
+    if (!displaySource) {
+        displaySource = booking.booking_source.charAt(0).toUpperCase() + booking.booking_source.slice(1);
+    }
+    const source = displaySource;
     
+    // Override payment status badge for OTA if necessary or make it more detailed
+    // Check if it's an OTA booking to show specific status
+    if (['ota', 'agoda', 'booking', 'tiket', 'traveloka', 'airbnb'].includes(booking.booking_source)) {
+         if (booking.payment_status === 'paid') {
+             paymentBadge = '<span style="background: #10b981; color: white; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">LUNAS (By ' + source + ')</span>';
+         }
+    }
+        actionButtons += '<button type="button" class="qv-btn" onclick="quickViewCheckOut()" style="background:#ef4444; color:white; border:none;">Check-out</button>';
+    } else if (booking.status === 'confirmed' || booking.status === 'pending') {
+        actionButtons += '<button type="button" class="qv-btn qv-checkin-btn" onclick="quickViewCheckIn()">Check-in</button>';
+    }
+    
+    // Move Room (Always available unless checked out)
+    if (booking.status !== 'checked_out') {
+        actionButtons += '<button type="button" class="qv-btn qv-move-btn" onclick="quickViewMoveRoom()">Move</button>';
+    }
+    
+    // Payment (Always available if not paid)
+    if (booking.payment_status !== 'paid') {
+        actionButtons += '<button type="button" class="qv-btn qv-pay-btn" onclick="openBookingPaymentModal()">Pay</button>';
+    }
+
     // Populate modal
     document.getElementById('qv-content').innerHTML = `
         <div style="text-align: center; padding-bottom: 0.75rem; border-bottom: 2px solid rgba(99, 102, 241, 0.2);">
             <div style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 0.25rem;">BOOKING CODE</div>
             <div style="font-size: 1.1rem; font-weight: 800; color: #6366f1; font-family: 'Courier New', monospace;">${booking.booking_code}</div>
+            <div style="font-size: 0.7rem; font-weight: 700; background:${booking.status === 'checked_in' ? '#10b981' : '#6366f1'}; color:white; display:inline-block; padding:2px 8px; border-radius:4px; margin-top:4px;">${booking.status.toUpperCase().replace('_',' ')}</div>
         </div>
         
         <div style="padding: 0.75rem 0;">
@@ -1752,18 +2019,10 @@ function showBookingQuickView(booking) {
             </div>
             ` : ''}
         </div>
-        ${booking.payment_status !== 'paid' ? `
+
         <div class="qv-actions">
-            <button type="button" class="qv-btn qv-checkin-btn" onclick="quickViewCheckIn()">Check-in</button>
-            <button type="button" class="qv-btn qv-move-btn" onclick="quickViewMoveRoom()">Move</button>
-            <button type="button" class="qv-btn qv-pay-btn" onclick="openBookingPaymentModal()">Pay</button>
+            ${actionButtons}
         </div>
-        ` : `
-        <div class="qv-actions">
-            <button type="button" class="qv-btn qv-checkin-btn" onclick="quickViewCheckIn()">Check-in</button>
-            <button type="button" class="qv-btn qv-move-btn" onclick="quickViewMoveRoom()">Move</button>
-        </div>
-        `}
     `;
     
     console.log('✅ Content populated');
@@ -2068,6 +2327,80 @@ window.quickViewCheckIn = function quickViewCheckIn() {
     }
 }
 
+window.quickViewCheckOut = function quickViewCheckOut() {
+    if (!currentPaymentBooking) {
+        alert('Booking data not found');
+        return;
+    }
+
+    const booking = currentPaymentBooking;
+    const guestName = booking.guest_name;
+    const roomNumber = booking.room_number;
+    
+    // Check payment status before checkout
+    if (booking.payment_status !== 'paid') {
+        const remaining = (parseFloat(booking.total_price) - parseFloat(booking.amount_paid)).toLocaleString('id-ID');
+        const proceed = confirm(`Pembayaran belum lunas (Sisa: Rp ${remaining}). Lanjut check-out?`);
+        if (!proceed) {
+            openBookingPaymentModal();
+            return;
+        }
+    }
+
+    if (confirm(`Check-out ${guestName} dari Room ${roomNumber} sekarang?`)) {
+        // Show loading state
+        const checkOutBtn = document.querySelector('.qv-checkout-btn');
+        let originalText = 'Check-out';
+        
+        if (checkOutBtn) {
+            originalText = checkOutBtn.innerHTML;
+            checkOutBtn.innerHTML = 'Processing...';
+            checkOutBtn.disabled = true;
+        }
+        
+        // Call check-out API
+        fetch('<?php echo BASE_URL; ?>/api/checkout-guest.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            credentials: 'include',
+            body: 'booking_id=' + booking.id
+        })
+        .then(response => {
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                return response.text().then(text => {
+                    console.error('Non-JSON response:', text);
+                    throw new Error('Server mengembalikan response non-JSON');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                closeBookingQuickView();
+                window.location.reload();
+            } else {
+                alert('❌ Error: ' + data.message);
+                if (checkOutBtn) {
+                    checkOutBtn.innerHTML = originalText;
+                    checkOutBtn.disabled = false;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan sistem: ' + error.message);
+            if (checkOutBtn) {
+                checkOutBtn.innerHTML = originalText;
+                checkOutBtn.disabled = false;
+            }
+        });
+    }
+}
+
 window.quickViewMoveRoom = function quickViewMoveRoom() {
     if (!currentPaymentBooking) {
         alert('Booking data not found');
@@ -2186,6 +2519,11 @@ window.openCellReservation = function openCellReservation(element) {
     
     // Populate Modal
     const modal = document.getElementById('reservationModal');
+    
+    // Reset Form First
+    const form = document.getElementById('reservationForm');
+    if(form) form.reset();
+
     const checkInInput = document.getElementById('checkInDate');
     const checkOutInput = document.getElementById('checkOutDate');
     const roomSelect = document.getElementById('roomSelect');
@@ -2203,6 +2541,18 @@ window.openCellReservation = function openCellReservation(element) {
         roomSelect.value = roomId;
         updateRoomPrice(); 
         updateStayDetails();
+    }
+    
+    // Trigger source update to hide fees by default
+    if(typeof updateSourceDetails === 'function') updateSourceDetails();
+    
+    // Reset payment method class
+    document.querySelectorAll('#reservationModal .pm-item').forEach(d => d.classList.remove('active'));
+    // Set cash active
+    const cashBtn = document.querySelector('#reservationModal .pm-item:first-child');
+    if(cashBtn) {
+        cashBtn.classList.add('active');
+        document.getElementById('paymentMethod').value = 'cash';
     }
     
     // Show Modal
@@ -2252,6 +2602,64 @@ window.updateStayDetails = function() {
     }
 }
 
+window.updateSourceDetails = function() {
+    const sourceSelect = document.getElementById('bookingSource');
+    const feeDisplay = document.getElementById('otaFeeDisplay');
+    const feeRow = document.getElementById('feeRow');
+    const source = sourceSelect ? sourceSelect.value : '';
+    
+    // Default Fees Map (Fallback)
+    // Matches the values in the HTML optgroup
+    const fees = (typeof OTA_FEES !== 'undefined') ? OTA_FEES : {
+        'agoda': 15, 
+        'booking': 12, 
+        'tiket': 10, 
+        'traveloka': 15, 
+        'airbnb': 3, 
+        'ota': 10
+    };
+    
+    let feePercent = fees[source] || 0;
+    
+    // AUTO-SELECT PAYMENT METHOD LOGIC
+    const pmOtaBtn = document.getElementById('pm-ota'); // The new hidden OTA button
+    const otaSources = ['agoda', 'booking', 'tiket', 'traveloka', 'airbnb', 'ota'];
+    
+    if (otaSources.includes(source)) {
+        // Source is an OTA
+        if (pmOtaBtn) {
+            pmOtaBtn.style.display = 'flex'; // Show the button
+            pmOtaBtn.click(); // Auto-click to select it
+        }
+    } else {
+        // Source is NOT an OTA (Direct/Walk-in)
+        if (pmOtaBtn) {
+            pmOtaBtn.style.display = 'none'; // Hide the button
+        }
+        // Switch back to Cash if OTA was selected
+        const currentPm = document.getElementById('paymentMethod').value;
+        if (currentPm === 'ota') {
+             // Find cash button and click it
+             const cashBtn = document.querySelector('.pm-item[onclick*="cash"]');
+             if (cashBtn) cashBtn.click();
+        }
+    }
+    
+    if (feePercent > 0) {
+        if(feeDisplay) {
+            feeDisplay.style.display = 'inline-block';
+            const pctEl = document.getElementById('otaFeePercent');
+            if(pctEl) pctEl.innerText = feePercent;
+        }
+        if(feeRow) feeRow.style.display = 'flex';
+    } else {
+        if(feeDisplay) feeDisplay.style.display = 'none';
+        if(feeRow) feeRow.style.display = 'none';
+    }
+    
+    calculateFinalPrice();
+}
+
 window.calculateFinalPrice = function() {
     const nightsEl = document.getElementById('totalNights');
     const priceEl = document.getElementById('roomPrice');
@@ -2269,12 +2677,59 @@ window.calculateFinalPrice = function() {
     
     const hiddenEl = document.getElementById('hiddenFinalPrice');
     if(hiddenEl) hiddenEl.value = final;
+    
+    // OTA Source Logic - Updated to auto-set payment method and full payment
+    const feeRow = document.getElementById('feeRow');
+    const pmOta = document.getElementById('pm-ota');
+    const paymentMethodInput = document.getElementById('paymentMethod');
+    const paidAmountInput = document.getElementById('paidAmount');
+    
+    if (fees[source] && fees[source] > 0) {
+        if(feeRow) feeRow.style.display = 'flex';
+        // Auto select OTA payment for OTA sources
+        if(pmOta) {
+            pmOta.style.display = 'flex';
+            // Trigger click to activate
+            if (source !== 'walk_in' && source !== 'phone') {
+                pmOta.click();
+            }
+        }
+        
+        // Auto-fill paid amount with final price for OTA (Assume prepaid to OTA)
+        // Check if it IS an OTA source (logic: has a fee defined usually implies OTA here)
+        if (['agoda', 'booking', 'tiket', 'traveloka', 'airbnb', 'ota'].includes(source)) {
+             if (paidAmountInput) paidAmountInput.value = final;
+             
+             // Update payment status dropdown logic locally if function exists
+             if (typeof updatePaymentStatusFromAmount === 'function') {
+                 updatePaymentStatusFromAmount();
+             }
+             
+             const feeInfo = document.getElementById('otaFeeInfo');
+             if(feeInfo) feeInfo.style.display = 'block';
+        }
+        
+    } else {
+        if(feeRow) feeRow.style.display = 'none';
+        if(pmOta) pmOta.style.display = 'none';
+        const feeInfo = document.getElementById('otaFeeInfo');
+        if(feeInfo) feeInfo.style.display = 'none';
+        
+        // Revert to cash if OTA was selected but source changed to non-OTA
+        if (paymentMethodInput.value === 'ota') {
+            const cashBtn = document.querySelector('.pm-item[onclick*="cash"]');
+            if (cashBtn) cashBtn.click();
+        }
+    }
 }
 
 window.setPaymentMethod = function(method, btn) {
     document.getElementById('paymentMethod').value = method;
+    // Handle both old button style and new pm-item style
     document.querySelectorAll('#reservationModal .payment-method-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    document.querySelectorAll('#reservationModal .pm-item').forEach(b => b.classList.remove('active'));
+    
+    if(btn) btn.classList.add('active');
 }
 
 window.submitReservation = function(event) {
@@ -2544,6 +2999,9 @@ window.calculatePrice = function calculatePrice() {
     document.getElementById('discountAmount').textContent = '- Rp ' + discount.toLocaleString('id-ID');
     document.getElementById('finalPrice').textContent = 'Rp ' + final.toLocaleString('id-ID');
 
+    // Run Calculate Final Price for the modernized form too
+    if (typeof calculateFinalPrice === 'function') calculateFinalPrice();
+
     // Recalculate DP amount if a percent is selected
     const paidInput = document.getElementById('paidAmount');
     if (paidInput && paidInput.dataset.dpPercent) {
@@ -2767,6 +3225,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+        // Setup Booking Source Logic
+        const sourceSelect = document.getElementById('bookingSource');
+        if (sourceSelect) {
+            sourceSelect.addEventListener('change', function() {
+                // Trigger the logic to show/hide OTA options
+                if (typeof calculateFinalPrice === 'function') calculateFinalPrice();
+            });
+        }
+
         const dpButtons = document.querySelectorAll('.dp-percent-btn');
         dpButtons.forEach(btn => {
             btn.addEventListener('click', function() {
@@ -2795,116 +3262,424 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- RESERVATION MODAL - POPUP -->
+<!-- RESERVATION MODAL - POPUP SYSTEM 2028 -->
 <div id="reservationModal" class="modal-overlay">
-    <div class="modal-content modal-content-large">
+    <div class="modal-content modal-content-large glass-panel">
         <button class="modal-close" onclick="closeReservationModal()">×</button>
         
         <div class="modal-header">
-            <h2>New Reservation</h2>
-            <p>Create a new booking manually (Walk-in/Phone/etc)</p>
+            <h2 class="gradient-text">New Reservation</h2>
+            <p>Create new booking entry</p>
         </div>
         
         <form id="reservationForm" onsubmit="submitReservation(event)">
-            <!-- Hidden Fields required by API -->
             <input type="hidden" name="action" value="create_reservation">
-            <input type="hidden" name="booking_source" value="walk_in">
             <input type="hidden" id="totalNights" name="total_nights" value="1">
             <input type="hidden" id="hiddenFinalPrice" name="final_price" value="0">
-            <!-- Ensure room_price is sent -->
             
-            <div class="form-section">
-                <h3>Guests Information</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Guest Name *</label>
-                        <input type="text" id="guestName" name="guest_name" required placeholder="Guest Name">
+            <div class="form-grid-2028">
+                <!-- LEFT COLUMN -->
+                <div class="form-col">
+                    <div class="form-section-modern">
+                        <h3><i class="icon-user"></i> Guest Info</h3>
+                        <div class="input-group-modern">
+                            <label>Guest Name</label>
+                            <input type="text" id="guestName" name="guest_name" required placeholder="Full Name">
+                        </div>
+                        <div class="input-group-modern">
+                            <label>Contact</label>
+                            <input type="text" id="guestPhone" name="guest_phone" placeholder="Phone / WhatsApp">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Phone / WhatsApp</label>
-                        <input type="text" id="guestPhone" name="guest_phone" placeholder="08xxxxxxxxxx">
-                    </div>
-                </div>
-            </div>
 
-            <div class="form-section">
-                <h3>Stay Details</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Check In *</label>
-                        <input type="date" id="checkInDate" name="check_in_date" required onchange="updateStayDetails()">
-                    </div>
-                    <div class="form-group">
-                        <label>Check Out *</label>
-                        <input type="date" id="checkOutDate" name="check_out_date" required onchange="updateStayDetails()">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Room *</label>
-                        <select id="roomSelect" name="room_id" required onchange="updateRoomPrice()">
-                            <option value="">Select Room</option>
-                            <?php foreach ($rooms as $r): ?>
-                                <option value="<?php echo $r['id']; ?>" data-price="<?php echo $r['base_price']; ?>">
-                                    <?php echo $r['room_number']; ?> - <?php echo $r['type_name']; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Total Pax</label>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="number" id="adultCount" name="adult_count" value="1" min="1" placeholder="Adults" style="flex:1;">
-                            <input type="number" id="childrenCount" name="children_count" value="0" min="0" placeholder="Kids" style="flex:1;">
+                    <div class="form-section-modern">
+                        <h3><i class="icon-calendar"></i> Stay Details</h3>
+                        <div class="date-range-modern">
+                            <div class="input-group-modern">
+                                <label>Check In</label>
+                                <input type="date" id="checkInDate" name="check_in_date" required onchange="updateStayDetails()">
+                            </div>
+                            <div class="input-group-modern">
+                                <label>Check Out</label>
+                                <input type="date" id="checkOutDate" name="check_out_date" required onchange="updateStayDetails()">
+                            </div>
+                        </div>
+                        <div class="input-group-modern">
+                            <label>Room Selection</label>
+                            <select id="roomSelect" name="room_id" required onchange="updateRoomPrice()">
+                                <option value="">Select Room...</option>
+                                <?php foreach ($rooms as $r): ?>
+                                    <option value="<?php echo $r['id']; ?>" data-price="<?php echo $r['base_price']; ?>">
+                                        <?php echo $r['room_number']; ?> - <?php echo $r['type_name']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                         <div class="pax-control-modern">
+                            <label>Guests</label>
+                            <div class="pax-inputs">
+                                <input type="number" id="adultCount" name="adult_count" value="1" min="1" placeholder="Adult">
+                                <span>Adl</span>
+                                <input type="number" id="childrenCount" name="children_count" value="0" min="0" placeholder="Child">
+                                <span>Chd</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="form-col">
+                    <div class="form-section-modern">
+                        <h3><i class="icon-tag"></i> Booking Source</h3>
+                        <div class="input-group-modern">
+                            <select id="bookingSource" name="booking_source" onchange="updateSourceDetails()">
+                                <option value="walk_in">Direct Booking (Walk-in)</option>
+                                <option value="phone">Direct Booking (Phone)</option>
+                                <option value="online">Direct Booking (Website)</option>
+                                <optgroup label="Online Travel Agents (OTA)">
+                                    <option value="agoda">Agoda</option>
+                                    <option value="booking">Booking.com</option>
+                                    <option value="tiket">Tiket.com</option>
+                                    <option value="traveloka">Traveloka</option>
+                                    <option value="airbnb">Airbnb</option>
+                                    <option value="ota">Other OTA</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div id="otaFeeDisplay" class="fee-badge" style="display:none;">
+                            OTA Fee: <span id="otaFeePercent">0</span>%
+                        </div>
+                    </div>
+
+                    <div class="form-section-modern price-card-2028">
+                        <h3><i class="icon-wallet"></i> Payment & Price</h3>
+                        
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span>Room Price</span>
+                                <input type="number" id="roomPrice" name="room_price" readonly>
+                            </div>
+                            <div class="price-row">
+                                <span>Nights</span>
+                                <span id="displayNights">1</span>
+                            </div>
+                            <div class="price-row discount-row">
+                                <span>Discount</span>
+                                <input type="number" id="discount" name="discount" value="0" onchange="calculateFinalPrice()">
+                            </div>
+                             <div class="price-row fee-row" id="feeRow" style="display:none; color: #f43f5e;">
+                                <span>OTA Fee</span>
+                                <span id="feeAmountDisplay">- Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="total-display">
+                            <span>GRAND TOTAL</span>
+                            <strong id="finalPriceDisplay">Rp 0</strong>
+                        </div>
+
+                        <div class="input-group-modern mt-3">
+                            <label>Initial Payment (DP)</label>
+                            <input type="number" id="paidAmount" name="paid_amount" value="0" placeholder="Rp 0">
+                            <input type="hidden" id="hiddenFinalPrice" name="final_price">
+                        </div>
+
+                        <div class="payment-methods-grid">
+                            <input type="hidden" name="payment_method" id="paymentMethod" value="cash">
+                            <div class="pm-item active" onclick="setPaymentMethod('cash', this)">
+                                <span class="pm-icon">💵</span>
+                                <span class="pm-name">Cash</span>
+                            </div>
+                            <div class="pm-item" onclick="setPaymentMethod('transfer', this)">
+                                <span class="pm-icon">🏦</span>
+                                <span class="pm-name">Transfer</span>
+                            </div>
+                            <div class="pm-item" onclick="setPaymentMethod('qris', this)">
+                                <span class="pm-icon">📱</span>
+                                <span class="pm-name">QRIS</span>
+                            </div>
+                            <div class="pm-item" onclick="setPaymentMethod('edc', this)">
+                                <span class="pm-icon">💳</span>
+                                <span class="pm-name">EDC</span>
+                            </div>
+                            <!-- Added OTA Payment Method -->
+                            <div class="pm-item" id="pm-ota" onclick="setPaymentMethod('ota', this)" style="display:none;">
+                                <span class="pm-icon">🌐</span>
+                                <span class="pm-name">OTA</span>
+                            </div>
+                        </div>
+                        
+                        <div id="otaFeeInfo" style="display:none; text-align: center; margin-top: 10px; font-size: 0.8rem; color: #db2777; background: rgba(236,72,153,0.1); padding: 5px; border-radius: 6px;">
+                            ℹ️ Full payment recorded automatically for OTA.
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
-            <div class="form-section">
-                <h3>Payment & Price</h3>
-                <div class="booking-summary-box">
-                    <div class="summary-row">
-                        <span>Room Price / Night</span>
-                        <input type="number" id="roomPrice" name="room_price" class="summary-input" value="0" readonly>
-                    </div>
-                     <div class="summary-row">
-                        <span>Total Nights</span>
-                        <span id="displayNights">1</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Discount</span>
-                        <input type="number" id="discount" name="discount" class="summary-input" value="0" onchange="calculateFinalPrice()">
-                    </div>
-                    <div class="summary-row total-row">
-                        <span>Grand Total</span>
-                        <strong id="finalPriceDisplay">Rp 0</strong>
-                    </div>
-                </div>
-                
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label>Initial Payment (DP)</label>
-                    <input type="number" id="paidAmount" name="paid_amount" value="0">
-                </div>
-                
-                <div class="form-group">
-                    <label>Payment Method</label>
-                    <div class="payment-method-group">
-                        <input type="hidden" name="payment_method" id="paymentMethod" value="cash">
-                        <button type="button" class="payment-method-btn active" data-value="cash" onclick="setPaymentMethod('cash', this)">Cash</button>
-                        <button type="button" class="payment-method-btn" data-value="transfer" onclick="setPaymentMethod('transfer', this)">Transfer</button>
-                        <button type="button" class="payment-method-btn" data-value="qris" onclick="setPaymentMethod('qris', this)">QRIS</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="booking-actions" style="margin-top: 1.5rem; justify-content: flex-end;">
-                <button type="button" class="btn-secondary" onclick="closeReservationModal()">Cancel</button>
-                <button type="submit" class="btn-primary">Save Reservation</button>
+            <div class="modal-footer-modern">
+                <button type="button" class="btn-ghost" onclick="closeReservationModal()">Cancel</button>
+                <button type="submit" class="btn-glow">Save Reservation</button>
             </div>
         </form>
     </div>
 </div>
+
+<style>
+/* SYSTEM 2028 STYLES */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+body[data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-grid-2028 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    overflow-y: auto; /* Enable scroll here */
+    flex: 1; /* Take remaining space */
+}
+
+/* Scrollbar for form grid */
+.form-grid-2028::-webkit-scrollbar {
+    width: 6px;
+}
+.form-grid-2028::-webkit-scrollbar-track {
+    background: rgba(99, 102, 241, 0.05);
+}
+.form-grid-2028::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 3px;
+}
+.form-grid-2028::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.4);
+}
+
+@media (max-width: 768px) {
+    .form-grid-2028 { grid-template-columns: 1fr; gap: 1rem; padding: 1rem; }
+}
+
+.form-section-modern {
+    margin-bottom: 2rem;
+}
+
+.form-section-modern h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #64748b;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-group-modern {
+    margin-bottom: 1rem;
+}
+
+.input-group-modern label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text-secondary);
+}
+
+.input-group-modern input,
+.input-group-modern select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    transition: all 0.2s;
+}
+
+.input-group-modern input:focus,
+.input-group-modern select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    outline: none;
+}
+
+.date-range-modern {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.price-card-2028 {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.price-row input {
+    width: 100px;
+    text-align: right;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.price-row input:hover {
+    border-color: var(--border-color);
+    background: var(--input-bg);
+    border-radius: 4px;
+}
+
+.total-display {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-display strong {
+    font-size: 1.5rem;
+    color: #6366f1;
+}
+
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.pm-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card-bg);
+}
+
+.pm-item.active {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.pm-icon { font-size: 1.25rem; margin-bottom: 0.25rem; }
+.pm-name { font-size: 0.7rem; font-weight: 600; }
+
+.modal-footer-modern {
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    background: white; /* Ensure opaque background */
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+body[data-theme="dark"] .modal-footer-modern {
+    background: #1e293b;
+}
+
+.modal-header {
+    flex-shrink: 0;
+}
+
+.btn-glow {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-glow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-ghost {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.75rem 1.5rem;
+}
+
+.pax-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pax-inputs input {
+    width: 60px;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.fee-badge {
+    display: inline-block;
+    background: rgba(244, 63, 94, 0.1);
+    color: #f43f5e;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+</style>
 <!-- END RESERVATION MODAL -->
 
 
@@ -3002,18 +3777,29 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #6366f1;
 }
 
-/* FORCE HIDE PAYMENT MODAL - NOT NEEDED YET */
-#bookingPaymentModal {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
+/* Modal Overlay Base Styles */
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 99999; /* High Z-index */
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* FORCE HIDE QUICK VIEW MODAL - NOT NEEDED YET */
-#bookingQuickView {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
+/* Active State for Modals */
+.modal-overlay.active {
+    display: flex !important;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Quick View Popup - Simple & Elegant */
