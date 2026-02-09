@@ -4,6 +4,10 @@
  * Manage users in specific business databases
  */
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 define('APP_ACCESS', true);
 require_once dirname(dirname(__FILE__)) . '/config/config.php';
 require_once __DIR__ . '/includes/dev_auth.php';
