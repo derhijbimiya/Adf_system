@@ -8,8 +8,8 @@ define('APP_ACCESS', true);
 require_once '../config/config.php';
 require_once '../includes/auth.php';
 
-// Check developer access
-if (!isset($_SESSION['user_id']) || $_SESSION['role_code'] !== 'developer') {
+// Check developer access (allow admin and developer roles)
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role_code'], ['admin', 'developer'])) {
     header('Location: ../login.php');
     exit;
 }
