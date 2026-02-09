@@ -1,4 +1,4 @@
-name: Deploy to Hosting
+name: Deploy to Hosting via FTP
 
 on:
   push:
@@ -13,28 +13,29 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
         
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.HOSTING_HOST }} >> ~/.ssh/known_hosts
-          
-      - name: Deploy via SSH
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.HOSTING_USER }}@${{ secrets.HOSTING_HOST }} << 'EOF'
-          cd ${{ secrets.DEPLOY_PATH }}
-          git pull origin main
-          composer install --no-dev
-          php config/database.php
-          > echo "✅ Deployment Successful"
-          EOF
-          
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: ${{ secrets.FTP_PATH }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/node_modules/**
+            **/vendor/**
+            **/.env
+            **/config/database.php
+            
       - name: Notify on Success
         if: success()
-        run: echo "✅ Deployment completed successfully to ${{ secrets.HOSTING_HOST }}"
+        run: echo "✅ Deployment completed successfully to ${{ secrets.FTP_HOST }}"
         
       - name: Notify on Failure
         if: failure()
-        run: echo "❌ Deployment failed"
+        run: echo "❌ Deployment failed - check FTP credentials"
