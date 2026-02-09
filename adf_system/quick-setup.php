@@ -84,10 +84,11 @@ try {
     
     // 7. Create businesses table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `businesses` (
-        id VARCHAR(50) PRIMARY KEY,
+        id INT AUTO_INCREMENT PRIMARY KEY,
         business_code VARCHAR(50) UNIQUE NOT NULL,
         business_name VARCHAR(100) NOT NULL,
         business_type VARCHAR(50) DEFAULT NULL,
+        owner_id INT DEFAULT NULL,
         address TEXT DEFAULT NULL,
         phone VARCHAR(20) DEFAULT NULL,
         email VARCHAR(100) DEFAULT NULL,
@@ -100,7 +101,7 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS `user_menu_permissions` (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
-        business_id VARCHAR(50) NOT NULL,
+        business_id INT NOT NULL,
         menu_code VARCHAR(100) NOT NULL,
         can_view TINYINT(1) DEFAULT 1,
         can_create TINYINT(1) DEFAULT 0,
@@ -112,6 +113,7 @@ try {
     // 9. Add foreign keys
     try { $pdo->exec("ALTER TABLE `users` ADD CONSTRAINT fk_users_role_id FOREIGN KEY (role_id) REFERENCES `roles`(id) ON DELETE RESTRICT"); } catch (Exception $e) {}
     try { $pdo->exec("ALTER TABLE `users` ADD CONSTRAINT fk_users_created_by FOREIGN KEY (created_by) REFERENCES `users`(id) ON DELETE SET NULL"); } catch (Exception $e) {}
+    try { $pdo->exec("ALTER TABLE `businesses` ADD CONSTRAINT businesses_ibfk_1 FOREIGN KEY (owner_id) REFERENCES `users`(id) ON DELETE SET NULL"); } catch (Exception $e) {}
     try { $pdo->exec("ALTER TABLE `user_preferences` ADD CONSTRAINT fk_user_pref_user_id FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE"); } catch (Exception $e) {}
     try { $pdo->exec("ALTER TABLE `user_menu_permissions` ADD CONSTRAINT fk_perm_user_id FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE"); } catch (Exception $e) {}
     try { $pdo->exec("ALTER TABLE `user_menu_permissions` ADD CONSTRAINT fk_perm_business_id FOREIGN KEY (business_id) REFERENCES `businesses`(id) ON DELETE CASCADE"); } catch (Exception $e) {}
@@ -153,13 +155,15 @@ try {
     // 15. Insert default businesses
     $pdo->exec("DELETE FROM `businesses`");
     $businesses = [
-        ['narayana-hotel', 'NARAYANAHOTEL', 'Narayana Hotel', 'hotel'],
-        ['bens-cafe', 'BENSCAFE', 'Bens Cafe', 'cafe']
+        ['NARAYANAHOTEL', 'Narayana Hotel', 'hotel', null],
+        ['BENSCAFE', 'Bens Cafe', 'cafe', null]
     ];
     
-    $stmt = $pdo->prepare("INSERT INTO `businesses` (id, business_code, business_name, business_type) VALUES (?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO `businesses` (business_code, business_name, business_type, owner_id) VALUES (?, ?, ?, ?)");
+    $business_ids = [];
     foreach ($businesses as $biz) {
         $stmt->execute($biz);
+        $business_ids[] = $pdo->lastInsertId();
     }
     
     // 16. Grant all menu permissions to admin for all businesses
@@ -167,9 +171,9 @@ try {
     $menus = ['dashboard', 'cashbook', 'divisions', 'frontdesk', 'procurement', 'sales', 'reports', 'settings', 'users'];
     
     $stmt = $pdo->prepare("INSERT INTO `user_menu_permissions` (user_id, business_id, menu_code, can_view, can_create, can_edit, can_delete) VALUES (?, ?, ?, 1, 1, 1, 1)");
-    foreach ($businesses as $biz) {
+    foreach ($business_ids as $biz_id) {
         foreach ($menus as $menu) {
-            $stmt->execute([$admin_user_id, $biz[0], $menu]);
+            $stmt->execute([$admin_user_id, $biz_id, $menu]);
         }
     }
     
