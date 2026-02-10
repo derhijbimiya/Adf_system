@@ -233,15 +233,14 @@ class Auth {
             $businessId = $business['id'];
             
             // Check permission in master database
-            // Join with menu_items to match module code
+            // Query directly using menu_code (no JOIN needed)
             $permStmt = $masterPdo->prepare("
-                SELECT p.can_view
-                FROM user_menu_permissions p
-                JOIN menu_items m ON p.menu_id = m.id
-                WHERE p.user_id = ? 
-                  AND p.business_id = ? 
-                  AND m.menu_code = ?
-                  AND p.can_view = 1
+                SELECT can_view
+                FROM user_menu_permissions
+                WHERE user_id = ? 
+                  AND business_id = ? 
+                  AND menu_code = ?
+                  AND can_view = 1
                 LIMIT 1
             ");
             $permStmt->execute([$masterId, $businessId, $module]);
