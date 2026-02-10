@@ -238,7 +238,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">Password</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+                    <input type="password" class="form-control" id="passwordField" name="password" placeholder="Enter password" required>
+                    <button type="button" class="btn btn-outline-light" id="togglePassword" style="border: 1px solid rgba(255,255,255,0.15); border-left: none; border-radius: 0 12px 12px 0;">
+                        <i class="bi bi-eye"></i>
+                    </button>
                 </div>
             </div>
             
@@ -253,5 +256,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('passwordField');
+            const icon = this.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    </script>
 </body>
 </html>
