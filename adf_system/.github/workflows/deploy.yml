@@ -1,36 +1,43 @@
-name: Deploy to Hosting via FTP
+name: 🚀 Deploy to Niagahoster
 
 on:
   push:
     branches:
       - main
-      - master
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   deploy:
+    name: 🌐 FTP Deploy to Niagahoster
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
         
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+      - name: 📤 Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
           local-dir: ./
-          server-dir: ${{ secrets.FTP_PATH }}
+          server-dir: ${{ secrets.FTP_TARGET }}
           dangerous-clean-slate: false
           exclude: |
             **/.git*
+            **/.git*/**
             **/node_modules/**
             **/vendor/**
             **/.env
-            **/config/database.php
+            **/test-*.php
+            **/check-*.php
+            **/debug-*.php
+            **/*.md
+            **/deploy-hosting.sh
             
       - name: Notify on Success
         if: success()
