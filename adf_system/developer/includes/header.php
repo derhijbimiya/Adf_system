@@ -462,12 +462,6 @@
             <a href="index.php?section=user-setup" class="<?php echo isset($_GET['section']) && $_GET['section'] == 'user-setup' ? 'active' : ''; ?>">
                 <i class="bi bi-person-plus"></i>User Setup
             </a>
-            <a href="users.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : ''; ?>">
-                <i class="bi bi-people"></i>Users
-            </a>
-            <a href="business-users.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'business-users.php' ? 'active' : ''; ?>">
-                <i class="bi bi-person-badge"></i>Business Users
-            </a>
             <a href="businesses.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'businesses.php' ? 'active' : ''; ?>">
                 <i class="bi bi-building"></i>Businesses
             </a>

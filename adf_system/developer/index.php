@@ -14,6 +14,40 @@ $auth->requireLogin();
 $user = $auth->getCurrentUser();
 $pdo = $auth->getConnection();
 
+// =============================================
+// FUNCTION: Sync Password to Business Databases
+// =============================================
+function syncPasswordToBusinesses($username, $hashedPassword, $mainPdo) {
+    try {
+        // Get all businesses
+        $stmt = $mainPdo->prepare("SELECT database_name FROM businesses WHERE is_active = 1");
+        $stmt->execute();
+        $businesses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($businesses as $biz) {
+            $dbName = $biz['database_name'];
+            try {
+                // Try to update user in business database
+                $bizPdo = new PDO(
+                    "mysql:host=" . DB_HOST . ";dbname=" . $dbName . ";charset=utf8mb4",
+                    DB_USER,
+                    DB_PASS,
+                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                );
+                
+                $updateStmt = $bizPdo->prepare("UPDATE users SET password=? WHERE username=?");
+                $updateStmt->execute([$hashedPassword, $username]);
+                
+            } catch (Exception $e) {
+                // Log sync error but don't fail
+                error_log("Password sync failed for DB: $dbName - " . $e->getMessage());
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Password sync to businesses failed: " . $e->getMessage());
+    }
+}
+
 // Determine which section to display
 $section = $_GET['section'] ?? 'dashboard';
 $pageTitle = 'Developer Panel';
@@ -54,11 +88,14 @@ if ($section === 'user-setup') {
                             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
                             $stmt = $pdo->prepare("UPDATE users SET username=?, email=?, password=?, full_name=?, role_id=? WHERE id=?");
                             $stmt->execute([$username, $email, $hashedPassword, $fullName, $roleId, $userId]);
+                            
+                            // Sync password to all business databases
+                            syncPasswordToBusinesses($username, $hashedPassword, $pdo);
                         } else {
                             $stmt = $pdo->prepare("UPDATE users SET username=?, email=?, full_name=?, role_id=? WHERE id=?");
                             $stmt->execute([$username, $email, $fullName, $roleId, $userId]);
                         }
-                        $_SESSION['success_message'] = '✅ User updated successfully!';
+                        $_SESSION['success_message'] = '✅ User updated and synced to all businesses!';
                     } else {
                         // Create new user
                         if (!$password) throw new Exception('Password harus diisi untuk user baru!');
@@ -67,8 +104,11 @@ if ($section === 'user-setup') {
                         $stmt = $pdo->prepare("INSERT INTO users (username, email, password, full_name, phone, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)");
                         $stmt->execute([$username, $email, $hashedPassword, $fullName, '0000000000', $roleId, 1]);
                         
+                        // Sync password to all business databases
+                        syncPasswordToBusinesses($username, $hashedPassword, $pdo);
+                        
                         $auth->logAction('create_user', 'users', $pdo->lastInsertId());
-                        $_SESSION['success_message'] = '✅ User created successfully!';
+                        $_SESSION['success_message'] = '✅ User created and synced to all businesses!';
                     }
                     
                     $selectedUserId = null;
@@ -800,75 +840,294 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     
     <style>
+    /* ============ Wizard Steps Styling ============ */
     .wizard-steps {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 20px;
-        margin: 30px 0;
+        gap: 15px;
+        margin: 40px 0;
         flex-wrap: wrap;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     .step {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         opacity: 0.5;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
+    }
+    
+    .step:hover {
+        opacity: 0.7;
     }
     
     .step.active {
         opacity: 1;
+        transform: scale(1.05);
     }
     
     .step.completed {
-        opacity: 0.7;
+        opacity: 0.8;
     }
     
     .step-number {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        background: #f0f0f0;
+        background: white;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        border: 2px solid #ddd;
+        font-size: 16px;
+        border: 3px solid #ddd;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .step.active .step-number {
         background: #0d6efd;
         color: white;
         border-color: #0d6efd;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
     }
     
     .step.completed .step-number {
         background: #198754;
         color: white;
         border-color: #198754;
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+    }
+    
+    .step-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #495057;
+        text-align: center;
+    }
+    
+    .step.active .step-label {
+        color: #0d6efd;
+        font-weight: 700;
+    }
+    
+    .step.completed .step-label {
+        color: #198754;
     }
     
     .step-arrow {
-        color: #ddd;
-        font-size: 20px;
+        color: #adb5bd;
+        font-size: 22px;
+        margin: 0 5px;
+        opacity: 0.6;
     }
     
+    /* ============ Form Styling ============ */
+    .content-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .card-header-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+    }
+    
+    .card-header-custom h4,
+    .card-header-custom h5 {
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    /* ============ Business Card Styling ============ */
     .business-card {
         cursor: pointer;
-        transition: all 0.3s;
-        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 8px;
     }
     
     .business-card:hover {
         border-color: #0d6efd;
-        box-shadow: 0 0 10px rgba(13, 110, 253, 0.2);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+        transform: translateY(-2px);
     }
     
     .business-card.selected {
         border-color: #0d6efd;
+        background: linear-gradient(135deg, #f0f4ff 0%, #f8faff 100%);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+    }
+    
+    .business-card .card-body {
+        padding: 15px;
+    }
+    
+    .business-card .form-check-label {
+        cursor: pointer;
+        margin-bottom: 0;
+        font-weight: 500;
+    }
+    
+    /* ============ Table Styling ============ */
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
         background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 700;
+        color: #495057;
+        padding: 15px;
+    }
+    
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .table tbody td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    /* ============ Alert Messages ============ */
+    .alert {
+        border-radius: 8px;
+        border-left: 4px solid;
+        margin-bottom: 20px;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .alert-success {
+        border-left-color: #198754;
+        background: #f1fffe;
+    }
+    
+    .alert-danger {
+        border-left-color: #dc3545;
+        background: #ffe5e5;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* ============ Button Styling ============ */
+    .btn {
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        padding: 10px 16px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        background: #198754;
+        border: none;
+    }
+    
+    .btn-success:hover {
+        background: #157347;
+        transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        border: none;
+    }
+    
+    .btn-danger:hover {
+        background: #bb2d3b;
+        transform: translateY(-2px);
+    }
+    
+    /* ============ Form Groups ============ */
+    .form-control,
+    .form-select {
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        padding: 10px 12px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+    
+    /* ============ Input Groups ============ */
+    .input-group .btn-outline-secondary {
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+    }
+    
+    .input-group .btn-outline-secondary:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    /* ============ Responsive ============ */
+    @media (max-width: 768px) {
+        .wizard-steps {
+            gap: 10px;
+            margin: 25px 0;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+        }
+        
+        .step-label {
+            font-size: 12px;
+        }
+        
+        .step.active {
+            transform: scale(1.02);
+        }
     }
     </style>
     
