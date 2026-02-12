@@ -69,18 +69,21 @@ try {
                         b.check_in_date,
                         b.check_out_date,
                         DATEDIFF(b.check_out_date, b.check_in_date) as nights,
-                        b.total_guests
+                        (COALESCE(b.adults, 1) + COALESCE(b.children, 0)) as total_guests
                      FROM bookings b
                      LEFT JOIN guests g ON b.guest_id = g.id
                      LEFT JOIN rooms r ON b.room_id = r.id
                      WHERE b.status = 'checked_in'
                      ORDER BY r.room_number ASC
-                     LIMIT 20"
+                     LIMIT 10"
                 );
                 $stmt2->execute();
                 $inhouse = $stmt2->fetchAll(PDO::FETCH_ASSOC);
                 $inhouseList = array_merge($inhouseList, $inhouse);
-            } catch (Exception $e) {}
+            } catch (Exception $e) {
+                // Log error for debugging
+                error_log("Inhouse query error: " . $e->getMessage());
+            }
             
             // Get Upcoming Check-ins
             try {

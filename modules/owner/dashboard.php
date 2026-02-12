@@ -1092,10 +1092,11 @@ $logoFile = 'logo-alt.png';
             
             <!-- Inhouse Guest List -->
             <div style="background: #f8fafc; border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: #1e3a8a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                    <span>🛏️</span> Tamu Inhouse
+                <div style="font-size: 0.75rem; font-weight: 700; color: #1e3a8a; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 0.25rem;">🛏️ Tamu Inhouse</span>
+                    <span id="inhouseTotal" style="font-size: 0.65rem; color: #6b7280; font-weight: 500;"></span>
                 </div>
-                <div id="inhouseList" style="max-height: 150px; overflow-y: auto;">
+                <div id="inhouseList" style="max-height: 180px; overflow-y: auto;">
                     <div style="text-align: center; color: #9ca3af; padding: 0.5rem; font-size: 0.75rem;">Loading...</div>
                 </div>
             </div>
@@ -1900,8 +1901,18 @@ $logoFile = 'logo-alt.png';
                     
                     // Inhouse Guest List
                     const inhouseContainer = document.getElementById('inhouseList');
-                    if (data.inhouse?.list && data.inhouse.list.length > 0) {
-                        inhouseContainer.innerHTML = data.inhouse.list.map(g => `
+                    const inhouseTotal = document.getElementById('inhouseTotal');
+                    const inhouseListData = data.inhouse?.list || [];
+                    
+                    // Show total count if more than displayed
+                    if (inhouseListData.length > 4) {
+                        inhouseTotal.textContent = `(${inhouseListData.length} total)`;
+                    } else {
+                        inhouseTotal.textContent = '';
+                    }
+                    
+                    if (inhouseListData.length > 0) {
+                        inhouseContainer.innerHTML = inhouseListData.map(g => `
                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: white; border-radius: 6px; margin-bottom: 0.35rem; border: 1px solid #e5e7eb;">
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     <span style="background: #dbeafe; color: #1e40af; font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.4rem; border-radius: 4px; min-width: 36px; text-align: center;">${g.room_number || '-'}</span>
@@ -1916,6 +1927,9 @@ $logoFile = 'logo-alt.png';
                     } else {
                         inhouseContainer.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 0.5rem; font-size: 0.75rem;">Tidak ada tamu inhouse</div>';
                     }
+                    
+                    // Debug log
+                    console.log('Inhouse data:', data.inhouse);
                     
                     // Upcoming List
                     const upcomingContainer = document.getElementById('upcomingList');
