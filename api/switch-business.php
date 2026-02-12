@@ -49,7 +49,7 @@ if (!file_exists($businessFile)) {
 
 // Check if user has access to this business via master database
 try {
-    $masterPdo = new PDO("mysql:host=" . DB_HOST . ";dbname=adf_system", DB_USER, DB_PASS);
+    $masterPdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
     $masterPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // Map business_id to business_code

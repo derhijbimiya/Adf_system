@@ -15,7 +15,7 @@ $auth->requireLogin();
 
 // Get user's accessible businesses from master database
 try {
-    $masterPdo = new PDO("mysql:host=" . DB_HOST . ";dbname=adf_system", DB_USER, DB_PASS);
+    $masterPdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
     $masterPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $username = $_SESSION['username'];
