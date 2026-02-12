@@ -25,7 +25,7 @@ if ($result) {
     // Check file existence
     echo "<h2>4. Checking File:</h2>";
     $path1 = __DIR__ . '/uploads/logos/' . $filename;
-    $path2 = $_SERVER['DOCUMENT_ROOT'] . '/adf_system/uploads/logos/' . $filename;
+    $path2 = $_SERVER['DOCUMENT_ROOT'] . '/uploads/logos/' . $filename;
     
     echo "<p><b>Path 1:</b> $path1</p>";
     if (file_exists($path1)) {

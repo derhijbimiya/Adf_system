@@ -14,7 +14,11 @@ foreach ($_COOKIE as $key => $value) {
     setcookie($key, '', time() - 3600, '/');
 }
 
-// Redirect to login
-header('Location: ' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/adf_system/login.php');
+// Redirect to login - detect environment
+$isLocal = (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false || 
+            strpos($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1') !== false);
+$basePath = $isLocal ? '/adf_system' : '';
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+header('Location: ' . $protocol . '://' . $_SERVER['HTTP_HOST'] . $basePath . '/login.php');
 exit;
 ?>

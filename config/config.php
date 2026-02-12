@@ -67,7 +67,21 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https'
 // Only define BASE_URL in web environment
 if (!defined('BASE_URL')) {
     if (php_sapi_name() !== 'cli') {
-        define('BASE_URL', $protocol . '://' . $host . '/adf_system');
+        // Detect if running at root or in subdirectory
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+        $basePath = '';
+        
+        // If in localhost and script path contains adf_system, use it
+        if (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') !== false || 
+            strpos($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1') !== false) {
+            // Local development - use /adf_system
+            $basePath = '/adf_system';
+        } else {
+            // Production - assume at root (or detect from script path)
+            $basePath = '';
+        }
+        
+        define('BASE_URL', $protocol . '://' . $host . $basePath);
     } else {
         // For CLI, just use a placeholder
         define('BASE_URL', 'http://localhost/adf_system');

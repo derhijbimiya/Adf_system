@@ -60,10 +60,10 @@ echo "<p><strong>Invoice Logo Value:</strong> " . ($invoiceLogo ? htmlspecialcha
 
 if ($invoiceLogo) {
     $possiblePaths = [
-        $_SERVER['DOCUMENT_ROOT'] . '/adf_system/uploads/logos/' . $invoiceLogo,
         dirname(__FILE__) . '/uploads/logos/' . $invoiceLogo,
-        $_SERVER['DOCUMENT_ROOT'] . '/adf_system/uploads/' . $invoiceLogo,
+        $_SERVER['DOCUMENT_ROOT'] . '/uploads/logos/' . $invoiceLogo,
         dirname(__FILE__) . '/uploads/' . $invoiceLogo,
+        $_SERVER['DOCUMENT_ROOT'] . '/uploads/' . $invoiceLogo,
     ];
     
     echo "<h4>Checking file existence:</h4>";
