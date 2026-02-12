@@ -175,21 +175,6 @@ include '../../includes/header.php';
         </div>
     </a>
     
-    <!-- Developer Settings -->
-    <a href="developer-settings.php" class="card" style="text-decoration: none; transition: all 0.3s; cursor: pointer;">
-        <div style="padding: 1.25rem;">
-            <div style="width: 48px; height: 48px; border-radius: var(--radius-lg); background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.05)); display: flex; align-items: center; justify-content: center; margin-bottom: 0.875rem;">
-                <i data-feather="code" style="width: 24px; height: 24px; color: var(--secondary-color);"></i>
-            </div>
-            <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem;">
-                Developer Settings
-            </h3>
-            <p style="font-size: 0.813rem; color: var(--text-muted); margin: 0;">
-                Edit nama dan logo developer di sidebar footer
-            </p>
-        </div>
-    </a>
-    
 </div>
 
 <!-- System Info -->

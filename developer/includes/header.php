@@ -516,6 +516,9 @@
             <a href="audit.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'audit.php' ? 'active' : ''; ?>">
                 <i class="bi bi-journal-text"></i>Audit Logs
             </a>
+            <a href="developer-settings.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'developer-settings.php' ? 'active' : ''; ?>">
+                <i class="bi bi-sliders"></i>Developer Settings
+            </a>
             
             <div class="menu-section">Account</div>
             <a href="logout.php">
