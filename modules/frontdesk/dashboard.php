@@ -1371,123 +1371,87 @@ include '../../includes/header.php';
         </div>
     </div>
 
-    <!-- Premium Dashboard Grid - Pie Chart Left, Revenue Right -->
-    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 1rem; margin-bottom: 1rem;">
-        <!-- LEFT: Occupancy Pie Chart -->
-        <div class="chart-card" style="padding: 1rem; border-radius: 14px; height: fit-content;">
-            <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                🥧 Occupancy Status 
-                <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: var(--bg-tertiary); padding: 0.2rem 0.5rem; border-radius: 20px;">
-                    <?php echo $stats['total_rooms']; ?> Rooms
-                </span>
-            </h3>
-            <div class="chart-container" style="height: 200px; position: relative; display: flex; align-items: center; justify-content: center;">
-                <canvas id="occupancyChart" style="max-width: 200px; max-height: 200px;"></canvas>
-                <!-- Center Text - Perfectly Centered -->
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; z-index: 10;">
-                    <div style="font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; letter-spacing: -1px;">
+    <!-- Compact Dashboard Grid - Clean Layout -->
+    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 0.75rem; margin-bottom: 0.75rem; align-items: stretch;">
+        
+        <!-- LEFT: Occupancy Pie Chart - Compact -->
+        <div style="background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 0.75rem; display: flex; flex-direction: column;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>🥧 Occupancy</span>
+                <span style="font-size: 0.65rem; color: var(--text-secondary); background: var(--bg-tertiary); padding: 0.15rem 0.4rem; border-radius: 10px;"><?php echo $stats['total_rooms']; ?> Rooms</span>
+            </div>
+            
+            <!-- Pie Chart Container -->
+            <div style="position: relative; width: 160px; height: 160px; margin: 0 auto;">
+                <canvas id="occupancyChart"></canvas>
+                <!-- Center Percentage -->
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <div style="font-size: 1.75rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
                         <?php echo $stats['occupancy_rate']; ?>%
                     </div>
-                    <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Occupied
-                    </div>
+                    <div style="font-size: 0.6rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Occupied</div>
                 </div>
             </div>
+            
             <!-- Legend -->
-            <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 0.75rem; font-size: 0.75rem;">
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                    <span style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;"></span>
-                    <span>TERISI (<?php echo $stats['occupied_rooms']; ?>)</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                    <span style="width: 10px; height: 10px; background: #818cf8; border-radius: 50%;"></span>
-                    <span>KOSONG (<?php echo $stats['available_rooms']; ?>)</span>
-                </div>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 0.5rem; font-size: 0.7rem;">
+                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></span>
+                    TERISI (<?php echo $stats['occupied_rooms']; ?>)
+                </span>
+                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="width: 8px; height: 8px; background: #818cf8; border-radius: 50%;"></span>
+                    KOSONG (<?php echo $stats['available_rooms']; ?>)
+                </span>
             </div>
         </div>
         
-        <!-- RIGHT: Revenue Overview -->
-        <div class="revenue-premium-container" style="margin: 0; padding: 1rem;">
-            <div class="revenue-header" style="margin-bottom: 0.75rem;">
-                <h2 class="revenue-title" style="font-size: 1rem; margin: 0;">
-                    <span class="revenue-icon">💎</span>
-                    Revenue Overview
-                </h2>
-                <p class="revenue-subtitle" style="font-size: 0.7rem; margin: 0.25rem 0 0 0;">Real-time financial performance tracking</p>
+        <!-- RIGHT: Revenue Overview - Compact Grid -->
+        <div style="background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 0.75rem;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                💎 Revenue Overview
+                <span style="font-size: 0.6rem; color: var(--text-secondary); font-weight: 400;">Real-time tracking</span>
             </div>
             
-            <div class="revenue-cards-grid" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
-            <!-- Actual Revenue Card -->
-            <div class="revenue-card revenue-card-actual">
-                <div class="revenue-card-header">
-                    <div class="revenue-card-icon">
-                        <span>💰</span>
+            <!-- Revenue Cards - Compact 3 Column -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                
+                <!-- Actual Revenue -->
+                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(52, 211, 153, 0.05)); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 0.6rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                        <span style="font-size: 1.2rem;">💰</span>
+                        <span style="font-size: 0.55rem; background: rgba(16, 185, 129, 0.15); color: #059669; padding: 0.15rem 0.35rem; border-radius: 8px; font-weight: 600;">TODAY</span>
                     </div>
-                    <div class="revenue-card-badge">Today</div>
+                    <div style="font-size: 0.6rem; color: #059669; font-weight: 500; margin-bottom: 0.2rem;">Actual Revenue</div>
+                    <div style="font-size: 1rem; font-weight: 800; color: #047857;">Rp <?php echo number_format($stats['revenue_today'], 0, ',', '.'); ?></div>
+                    <div style="font-size: 0.55rem; color: var(--text-secondary); margin-top: 0.2rem;">Cash received today</div>
                 </div>
-                <div class="revenue-card-body">
-                    <p class="revenue-card-label">Actual Revenue (Cash/Total)</p>
-                    <h3 class="revenue-card-amount">
-                        Rp <?php echo number_format($stats['revenue_today'], 0, ',', '.'); ?>
-                    </h3>
-                    <p class="revenue-card-desc">Payments received today</p>
-                </div>
-                <div class="revenue-card-footer">
-                    <div class="revenue-progress-bar">
-                        <div class="revenue-progress-fill revenue-progress-actual" style="width: 100%;"></div>
+                
+                <!-- OTA Revenue -->
+                <div style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(219, 39, 119, 0.05)); border: 1px solid rgba(236, 72, 153, 0.2); border-radius: 10px; padding: 0.6rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                        <span style="font-size: 1.2rem;">🌐</span>
+                        <span style="font-size: 0.55rem; background: rgba(236, 72, 153, 0.15); color: #db2777; padding: 0.15rem 0.35rem; border-radius: 8px; font-weight: 600;">OTA</span>
                     </div>
+                    <div style="font-size: 0.6rem; color: #db2777; font-weight: 500; margin-bottom: 0.2rem;">OTA Income</div>
+                    <div style="font-size: 1rem; font-weight: 800; color: #be185d;">Rp <?php echo number_format($stats['ota_revenue_today'], 0, ',', '.'); ?></div>
+                    <div style="font-size: 0.55rem; color: var(--text-secondary); margin-top: 0.2rem;">Agoda, Booking, etc</div>
                 </div>
-            </div>
-
-            <!-- OTA Revenue Card -->
-            <div class="revenue-card revenue-card-ota" style="background: linear-gradient(135deg, rgba(236,72,153,0.05) 0%, rgba(219,39,119,0.05) 100%); border: 1px solid rgba(236,72,153,0.2);">
-                <div class="revenue-card-header">
-                    <div class="revenue-card-icon" style="background: rgba(236,72,153,0.1); color: #db2777;">
-                        <span>🌐</span>
+                
+                <!-- Expected Revenue -->
+                <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 191, 36, 0.05)); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; padding: 0.6rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                        <span style="font-size: 1.2rem;">📊</span>
+                        <span style="font-size: 0.55rem; background: rgba(245, 158, 11, 0.15); color: #d97706; padding: 0.15rem 0.35rem; border-radius: 8px; font-weight: 600;">PENDING</span>
                     </div>
-                    <div class="revenue-card-badge" style="background: rgba(236,72,153,0.1); color: #db2777;">OTA Only</div>
+                    <div style="font-size: 0.6rem; color: #d97706; font-weight: 500; margin-bottom: 0.2rem;">Expected Revenue</div>
+                    <div style="font-size: 1rem; font-weight: 800; color: #b45309;">Rp <?php echo number_format($stats['expected_revenue'], 0, ',', '.'); ?></div>
+                    <div style="font-size: 0.55rem; color: var(--text-secondary); margin-top: 0.2rem;">From active bookings</div>
                 </div>
-                <div class="revenue-card-body">
-                    <p class="revenue-card-label" style="color: #db2777;">OTA Income</p>
-                    <h3 class="revenue-card-amount" style="color: #be185d;">
-                        Rp <?php echo number_format($stats['ota_revenue_today'], 0, ',', '.'); ?>
-                    </h3>
-                    <p class="revenue-card-desc">From Agoda, Booking.com, etc</p>
-                </div>
-                <div class="revenue-card-footer">
-                    <div class="revenue-progress-bar" style="background: rgba(236,72,153,0.1);">
-                        <div class="revenue-progress-fill" 
-                             style="width: <?php echo $stats['revenue_today'] > 0 ? min(100, ($stats['ota_revenue_today'] / $stats['revenue_today']) * 100) : 0; ?>%; background: linear-gradient(90deg, #ec4899, #db2777);"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Expected Revenue Card -->
-            <div class="revenue-card revenue-card-expected">
-                <div class="revenue-card-header">
-                    <div class="revenue-card-icon">
-                        <span>📊</span>
-                    </div>
-                    <div class="revenue-card-badge revenue-badge-expected">Pending</div>
-                </div>
-                <div class="revenue-card-body">
-                    <p class="revenue-card-label">Expected Revenue</p>
-                    <h3 class="revenue-card-amount">
-                        Rp <?php echo number_format($stats['expected_revenue'], 0, ',', '.'); ?>
-                    </h3>
-                    <p class="revenue-card-desc">From active bookings</p>
-                </div>
-                <div class="revenue-card-footer">
-                    <div class="revenue-progress-bar">
-                        <div class="revenue-progress-fill revenue-progress-expected" 
-                             style="width: <?php echo $stats['expected_revenue'] > 0 ? min(100, ($stats['revenue_today'] / $stats['expected_revenue']) * 100) : 0; ?>%;"></div>
-                    </div>
-                </div>
-            </div>
             </div>
         </div>
     </div>
-    <!-- End Premium Dashboard Grid -->
+    <!-- End Compact Dashboard Grid -->
 
     <!-- Checkout Guests Today - Detail Section -->
     <?php if (!empty($stats['checkout_guests'])): ?>
@@ -1677,21 +1641,18 @@ const occupancyCtx = document.getElementById('occupancyChart');
 if (occupancyCtx) {
     // Create modern gradients
     const ctx = occupancyCtx.getContext('2d');
-    const gradient1 = ctx.createLinearGradient(0, 0, 0, 300);
+    const gradient1 = ctx.createLinearGradient(0, 0, 0, 200);
     gradient1.addColorStop(0, 'rgba(16, 185, 129, 0.95)');
     gradient1.addColorStop(1, 'rgba(5, 150, 105, 0.95)');
     
-    const gradient2 = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient2.addColorStop(0, 'rgba(99, 102, 241, 0.95)');
-    gradient2.addColorStop(1, 'rgba(79, 70, 229, 0.95)');
+    const gradient2 = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient2.addColorStop(0, 'rgba(129, 140, 248, 0.95)');
+    gradient2.addColorStop(1, 'rgba(99, 102, 241, 0.95)');
     
     const occupancyChart = new Chart(occupancyCtx, {
         type: 'doughnut',
         data: {
-            labels: [
-                '✅ TERISI (<?php echo $stats['occupied_rooms']; ?>)',
-                '⭕ KOSONG (<?php echo $stats['available_rooms']; ?>)'
-            ],
+            labels: ['TERISI', 'KOSONG'],
             datasets: [{
                 data: [
                     <?php echo $stats['occupied_rooms']; ?>,
@@ -1699,34 +1660,20 @@ if (occupancyCtx) {
                 ],
                 backgroundColor: [gradient1, gradient2],
                 borderColor: 'rgba(255, 255, 255, 0.9)',
-                borderWidth: 3,
-                hoverOffset: 20,
-                hoverBorderWidth: 4,
-                borderRadius: 8,
-                spacing: 3
+                borderWidth: 2,
+                hoverOffset: 8,
+                hoverBorderWidth: 3,
+                borderRadius: 6,
+                spacing: 2
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            cutout: '75%',
+            maintainAspectRatio: true,
+            cutout: '70%',
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            size: 13,
-                            weight: '700',
-                            family: "'Inter', -apple-system, sans-serif"
-                        },
-                        color: getChartColor(),
-                        padding: 18,
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        pointStyleWidth: 12,
-                        boxWidth: 12,
-                        boxHeight: 12
-                    }
+                    display: false  // Hide default legend, using custom HTML legend
                 },
                 tooltip: {
                     enabled: true,
@@ -1734,21 +1681,18 @@ if (occupancyCtx) {
                     titleColor: '#ffffff',
                     bodyColor: '#e2e8f0',
                     borderColor: 'rgba(99, 102, 241, 0.6)',
-                    borderWidth: 2,
-                    padding: 16,
+                    borderWidth: 1,
+                    padding: 10,
                     displayColors: true,
-                    cornerRadius: 12,
-                    titleFont: { size: 14, weight: '700' },
-                    bodyFont: { size: 13, weight: '600' },
+                    cornerRadius: 8,
+                    titleFont: { size: 12, weight: '600' },
+                    bodyFont: { size: 11, weight: '500' },
                     callbacks: {
                         label: function(context) {
                             let total = <?php echo $stats['total_rooms']; ?>;
                             let value = context.parsed;
                             let percentage = ((value / total) * 100).toFixed(1);
-                            return '  ' + percentage + '%  (' + value + ' rooms)';
-                        },
-                        afterLabel: function(context) {
-                            return '';
+                            return ' ' + percentage + '% (' + value + ' rooms)';
                         }
                     }
                 }
@@ -1756,8 +1700,8 @@ if (occupancyCtx) {
             animation: {
                 animateRotate: true,
                 animateScale: true,
-                duration: 1500,
-                easing: 'easeInOutQuart'
+                duration: 1000,
+                easing: 'easeOutQuart'
             }
         }
     });
