@@ -708,7 +708,7 @@ echo getPrintCSS();
                     <th style="width: 60px;">Tipe</th>
                     <th style="width: 70px;">Metode</th>
                     <th style="width: 100px; text-align: right;">Jumlah</th>
-                    <th>Deskripsi</th>
+                    <th style="text-align: center; padding-left: 1.5rem;">Deskripsi</th>
                     <th style="width: 70px;">Aksi</th>
                 </tr>
             </thead>
