@@ -74,8 +74,20 @@ class DevAuth {
             $_SESSION['dev_logged_in'] = true;
             $_SESSION['dev_login_time'] = time();
             
-            // Update last login (commented - column doesn't exist)
-            // $this->pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
+            // Update last login
+            try {
+                $this->pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
+            } catch (Exception $e) {
+                // Ignore if column doesn't exist
+            }
+            
+            // Log to audit_logs
+            try {
+                $stmt = $this->pdo->prepare("INSERT INTO audit_logs (user_id, action_type, table_name, record_id, ip_address, created_at) VALUES (?, 'login', 'users', ?, ?, NOW())");
+                $stmt->execute([$user['id'], $user['id'], $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1']);
+            } catch (Exception $e) {
+                // Ignore if table doesn't exist
+            }
             
             return ['success' => true, 'message' => 'Login berhasil', 'user' => $user];
         } catch (PDOException $e) {
@@ -97,6 +109,15 @@ class DevAuth {
         if (!$this->isLoggedIn()) {
             header('Location: login.php');
             exit;
+        }
+        
+        // Update last activity (every 5 minutes to reduce DB load)
+        $lastUpdate = $_SESSION['dev_last_activity_update'] ?? 0;
+        if (time() - $lastUpdate > 300) { // 5 minutes
+            try {
+                $this->pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$_SESSION['dev_user_id']]);
+                $_SESSION['dev_last_activity_update'] = time();
+            } catch (Exception $e) {}
         }
     }
     

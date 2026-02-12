@@ -86,8 +86,23 @@ class Auth {
                     $_SESSION['user_language'] = 'id';
                 }
                 
-                $stmt = $pdo->prepare("UPDATE users SET updated_at = NOW() WHERE id = ?");
-                $stmt->execute([$user['id']]);
+                // Update last_login and updated_at
+                try {
+                    $stmt = $pdo->prepare("UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = ?");
+                    $stmt->execute([$user['id']]);
+                } catch (Exception $e) {
+                    // Fallback if last_login doesn't exist
+                    try {
+                        $stmt = $pdo->prepare("UPDATE users SET updated_at = NOW() WHERE id = ?");
+                        $stmt->execute([$user['id']]);
+                    } catch (Exception $e2) {}
+                }
+                
+                // Log to audit_logs
+                try {
+                    $stmt = $pdo->prepare("INSERT INTO audit_logs (user_id, action_type, table_name, record_id, ip_address, created_at) VALUES (?, 'login', 'users', ?, ?, NOW())");
+                    $stmt->execute([$user['id'], $user['id'], $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1']);
+                } catch (Exception $e) {}
                 
                 return true;
             }
@@ -133,6 +148,15 @@ class Auth {
         if (!$this->isLoggedIn()) {
             header('Location: ' . BASE_URL . '/login.php');
             exit;
+        }
+        
+        // Update last activity (every 5 minutes to reduce DB load)
+        $lastUpdate = $_SESSION['last_activity_update'] ?? 0;
+        if (time() - $lastUpdate > 300) { // 5 minutes
+            try {
+                $this->db->query("UPDATE users SET last_login = NOW() WHERE id = ?", [$_SESSION['user_id']]);
+                $_SESSION['last_activity_update'] = time();
+            } catch (Exception $e) {}
         }
         
         if (!isset($_SESSION['user_theme']) || !isset($_SESSION['user_language'])) {
