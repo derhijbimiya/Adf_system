@@ -612,7 +612,7 @@ body {
     user-select: none;
 }
 
-.nav-link.dropdown-toggle > * {
+.nav-link.dropdown-toggle * {
     pointer-events: none;
 }
 

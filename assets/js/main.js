@@ -66,43 +66,77 @@ const toggleSidebar = () => {
 
 // Toggle Dropdown Menu - Using Event Delegation for reliability
 const setupDropdownToggles = () => {
+    console.log('🔧 Setting up dropdown toggles...');
+    
     // Use event delegation on the nav-menu container
     const navMenu = document.querySelector('.nav-menu');
     
     if (navMenu) {
-        // Single event listener on parent using event delegation
-        navMenu.addEventListener('click', function(e) {
-            // Find if click was on or inside a dropdown-toggle
-            const toggle = e.target.closest('.nav-link.dropdown-toggle');
-            
-            if (toggle) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const navItem = toggle.closest('.nav-item.has-submenu');
-                
-                if (navItem) {
-                    // Close other open dropdowns at same level
-                    const siblings = navItem.parentElement.querySelectorAll('.nav-item.has-submenu.open');
-                    siblings.forEach(sibling => {
-                        if (sibling !== navItem) {
-                            sibling.classList.remove('open');
-                        }
-                    });
-                    
-                    // Toggle current dropdown
-                    navItem.classList.toggle('open');
-                }
-            }
-        });
+        console.log('✅ nav-menu found, adding click listener');
+        
+        // Remove existing listener if any (prevent duplicates)
+        navMenu.removeEventListener('click', handleNavMenuClick);
+        navMenu.addEventListener('click', handleNavMenuClick);
+    } else {
+        console.log('❌ nav-menu NOT found');
     }
     
-    // Also handle submenu links - allow normal navigation
-    document.querySelectorAll('.submenu-link').forEach((link) => {
-        link.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
+    // Also add direct listeners as fallback
+    const toggles = document.querySelectorAll('.nav-link.dropdown-toggle');
+    console.log('Found dropdown toggles:', toggles.length);
+    
+    toggles.forEach((toggle, index) => {
+        // Remove existing and re-add to prevent duplicates
+        toggle.removeEventListener('click', handleDropdownClick);
+        toggle.addEventListener('click', handleDropdownClick);
     });
+};
+
+// Named function for event handling (allows removeEventListener)
+function handleNavMenuClick(e) {
+    const toggle = e.target.closest('.nav-link.dropdown-toggle');
+    
+    if (toggle) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDropdown(toggle);
+    }
+}
+
+function handleDropdownClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleDropdown(this);
+}
+
+function toggleDropdown(toggle) {
+    const navItem = toggle.closest('.nav-item.has-submenu');
+    
+    if (navItem) {
+        // Close other open dropdowns at same level
+        const siblings = navItem.parentElement.querySelectorAll('.nav-item.has-submenu.open');
+        siblings.forEach(sibling => {
+            if (sibling !== navItem) {
+                sibling.classList.remove('open');
+            }
+        });
+        
+        // Toggle current dropdown
+        navItem.classList.toggle('open');
+    }
+}
+
+// Setup submenu link handlers
+const setupSubmenuLinks = () => {
+    document.querySelectorAll('.submenu-link').forEach((link) => {
+        link.removeEventListener('click', handleSubmenuClick);
+        link.addEventListener('click', handleSubmenuClick);
+    });
+};
+
+function handleSubmenuClick(e) {
+    e.stopPropagation();
+    // Allow normal navigation
 };
 
 
@@ -275,6 +309,13 @@ const initializeSystem = () => {
     setupCalculations();
     setupSearch();
     setupDropdownToggles(); // Add dropdown toggle handler
+    setupSubmenuLinks(); // Setup submenu handlers
+    
+    // Re-run after a short delay to catch feather-replaced icons
+    setTimeout(() => {
+        setupDropdownToggles();
+        setupSubmenuLinks();
+    }, 500);
 };
 
 // Initialize on DOM Load - with fallback for already-loaded DOM
