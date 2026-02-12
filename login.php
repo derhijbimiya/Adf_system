@@ -231,13 +231,15 @@ if (isset($_GET['biz'])) {
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             position: relative;
             <?php if ($bgUrl): ?>
-            background-image: linear-gradient(135deg, rgba(30,41,59,0.85), rgba(15,23,42,0.9)), url('<?php echo $bgUrl; ?>');
+            background-image: linear-gradient(135deg, rgba(30,41,59,0.85), rgba(15,23,42,0.9)), url('<?php echo $bgUrl; ?>?v=<?php echo time(); ?>');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            background-color: #0f172a;
+            <?php else: ?>
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             <?php endif; ?>
         }
         
