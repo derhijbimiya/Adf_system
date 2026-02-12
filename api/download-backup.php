@@ -5,10 +5,10 @@ require_once '../includes/auth.php';
 $auth = new Auth();
 $auth->requireLogin();
 
-// Only admin can download backups
-if (!$auth->hasRole('admin')) {
+// Only admin or developer can download backups
+if (!$auth->hasRole('admin') && !$auth->hasRole('developer')) {
     http_response_code(403);
-    die('Akses ditolak. Hanya admin yang bisa download backup.');
+    die('Akses ditolak. Hanya admin atau developer yang bisa download backup.');
 }
 
 if (!isset($_GET['file'])) {
