@@ -1069,8 +1069,8 @@ $logoFile = 'logo-alt.png';
             </div>
         </div>
         
-        <!-- Inhouse Guests & Upcoming Check-ins -->
-        <div class="section-card">
+        <!-- Inhouse Guests & Upcoming Check-ins (Hotel Only) -->
+        <div class="section-card hotel-only-section">
             <div class="section-title" style="margin-bottom: 1rem;">
                 <i data-feather="users" style="width: 20px; height: 20px; color: #4338ca;"></i>
                 Guest Overview
@@ -1112,8 +1112,8 @@ $logoFile = 'logo-alt.png';
             </div>
         </div>
         
-        <!-- Reservation Trend Chart -->
-        <div class="section-card">
+        <!-- Reservation Trend Chart (Hotel Only) -->
+        <div class="section-card hotel-only-section">
             <div class="section-title">
                 <i data-feather="calendar" style="width: 20px; height: 20px; color: #4338ca;"></i>
                 Reservation Trend
@@ -1249,12 +1249,14 @@ $logoFile = 'logo-alt.png';
                         'pabrik kapal': '🚢'
                     };
                     
-                    // Add "All Businesses" button
+                    // Add "All Businesses" button with developer logo
                     const allBtn = document.createElement('button');
                     allBtn.className = 'business-btn all-branches active';
                     allBtn.onclick = () => selectBusiness(null, 'All Businesses');
                     allBtn.innerHTML = `
-                        <div class="business-icon">🏢</div>
+                        <div class="business-icon" style="padding: 0;">
+                            <img src="../../uploads/logos/developer-logo.png" alt="All" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='🏢';">
+                        </div>
                         <div class="business-name">All<br>Businesses</div>
                     `;
                     container.appendChild(allBtn);
@@ -1365,6 +1367,16 @@ $logoFile = 'logo-alt.png';
             
             // Update selected business name display
             document.getElementById('selectedBusinessName').textContent = branchName;
+            
+            // Show/hide hotel-only sections based on business type
+            const hotelOnlySections = document.querySelectorAll('.hotel-only-section');
+            const isRestaurant = branchName && (branchName.toLowerCase().includes('cafe') || 
+                                                 branchName.toLowerCase().includes('resto') || 
+                                                 branchName.toLowerCase().includes('eat'));
+            
+            hotelOnlySections.forEach(section => {
+                section.style.display = isRestaurant ? 'none' : 'block';
+            });
             
             // Load data for selected business
             loadBranchData();
