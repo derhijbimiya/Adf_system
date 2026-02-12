@@ -18,15 +18,8 @@ class Database {
         try {
             // Get database name from business config if not provided
             if ($dbName === null) {
-                // On hosting, always use default database for compatibility
-                $isProduction = (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') === false && 
-                                strpos($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1') === false);
-                
-                if ($isProduction) {
-                    // Production: always use default database
-                    $dbName = DB_NAME;
-                } elseif (defined('ACTIVE_BUSINESS_ID')) {
-                    // Local: use business-specific database
+                if (defined('ACTIVE_BUSINESS_ID')) {
+                    // Use business-specific database based on ACTIVE_BUSINESS_ID
                     require_once __DIR__ . '/../includes/business_helper.php';
                     $businessConfig = getActiveBusinessConfig();
                     $dbName = $businessConfig['database'];
@@ -39,12 +32,15 @@ class Database {
             $isProduction = (strpos($_SERVER['HTTP_HOST'] ?? '', 'localhost') === false && 
                             strpos($_SERVER['HTTP_HOST'] ?? '', '127.0.0.1') === false);
             if ($isProduction) {
-                // Convert adf_* to adfb2574_narayana_* on hosting
-                if (strpos($dbName, 'adf_') === 0) {
-                    // adf_narayana_hotel → adfb2574_narayana_hotel
-                    // adf_benscafe → adfb2574_narayana_benscafe
-                    $suffix = substr($dbName, 4); // Remove 'adf_'
-                    $dbName = 'adfb2574_narayana_' . $suffix;
+                // Map local database names to hosting database names
+                $dbMapping = [
+                    'adf_system' => 'adfb2574_adf',
+                    'adf_narayana_hotel' => 'adfb2574_narayana_hotel',
+                    'adf_benscafe' => 'adfb2574_Adf_Bens'
+                ];
+                
+                if (isset($dbMapping[$dbName])) {
+                    $dbName = $dbMapping[$dbName];
                 }
             }
 
