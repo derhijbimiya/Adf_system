@@ -77,7 +77,19 @@ function setFlashMessage($key, $message) {
 }
 
 function formatCurrency($amount) {
-    return CURRENCY_SYMBOL . ' ' . number_format($amount, CURRENCY_DECIMAL, ',', '.');
+    // Hardcode Rp untuk menghindari encoding issue di hosting
+    $symbol = 'Rp';
+    $decimal = 0;
+    
+    // Use constants if they are valid (not corrupted)
+    if (defined('CURRENCY_SYMBOL') && is_string(CURRENCY_SYMBOL) && strlen(CURRENCY_SYMBOL) <= 5) {
+        $symbol = CURRENCY_SYMBOL;
+    }
+    if (defined('CURRENCY_DECIMAL') && is_numeric(CURRENCY_DECIMAL) && CURRENCY_DECIMAL >= 0 && CURRENCY_DECIMAL <= 4) {
+        $decimal = (int)CURRENCY_DECIMAL;
+    }
+    
+    return $symbol . ' ' . number_format((float)$amount, $decimal, ',', '.');
 }
 
 function formatDate($date, $format = DATE_FORMAT) {
