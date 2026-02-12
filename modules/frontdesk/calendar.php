@@ -550,7 +550,8 @@ body[data-theme="light"] .grid-room-label {
     z-index: 30;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+    text-align: center;
     font-size: 0.85rem;
     gap: 0.25rem;
     min-height: 30px; /* Slight increase for better spacing */
