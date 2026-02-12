@@ -165,7 +165,7 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
             
-            <nav style="flex: 1; overflow-y: auto;">
+            <nav style="flex: 1; overflow-y: auto; overflow-x: hidden;">
                 <ul class="nav-menu">
                     <?php if ($auth->hasPermission('dashboard')): ?>
                     <li class="nav-item">
