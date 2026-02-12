@@ -612,8 +612,7 @@ body {
     user-select: none;
 }
 
-.nav-link.dropdown-toggle svg,
-.nav-link.dropdown-toggle .nav-icon {
+.nav-link.dropdown-toggle > * {
     pointer-events: none;
 }
 

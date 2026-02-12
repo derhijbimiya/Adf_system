@@ -64,35 +64,41 @@ const toggleSidebar = () => {
     sidebar.classList.toggle('show');
 };
 
-// Toggle Dropdown Menu
+// Toggle Dropdown Menu - Using Event Delegation for reliability
 const setupDropdownToggles = () => {
-    const dropdownToggles = document.querySelectorAll('.nav-link.dropdown-toggle');
+    // Use event delegation on the nav-menu container
+    const navMenu = document.querySelector('.nav-menu');
     
-    dropdownToggles.forEach((toggle) => {
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+    if (navMenu) {
+        // Single event listener on parent using event delegation
+        navMenu.addEventListener('click', function(e) {
+            // Find if click was on or inside a dropdown-toggle
+            const toggle = e.target.closest('.nav-link.dropdown-toggle');
             
-            const navItem = this.closest('.nav-item.has-submenu');
-            
-            if (navItem) {
-                // Close other open dropdowns at same level
-                const siblings = navItem.parentElement.querySelectorAll('.nav-item.has-submenu.open');
-                siblings.forEach(sibling => {
-                    if (sibling !== navItem) {
-                        sibling.classList.remove('open');
-                    }
-                });
+            if (toggle) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Toggle current dropdown
-                navItem.classList.toggle('open');
+                const navItem = toggle.closest('.nav-item.has-submenu');
+                
+                if (navItem) {
+                    // Close other open dropdowns at same level
+                    const siblings = navItem.parentElement.querySelectorAll('.nav-item.has-submenu.open');
+                    siblings.forEach(sibling => {
+                        if (sibling !== navItem) {
+                            sibling.classList.remove('open');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    navItem.classList.toggle('open');
+                }
             }
         });
-    });
+    }
     
-    // Ensure submenu links work normally
-    const submenuLinks = document.querySelectorAll('.submenu-link');
-    submenuLinks.forEach((link) => {
+    // Also handle submenu links - allow normal navigation
+    document.querySelectorAll('.submenu-link').forEach((link) => {
         link.addEventListener('click', function(e) {
             e.stopPropagation();
         });

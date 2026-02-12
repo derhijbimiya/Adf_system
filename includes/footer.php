@@ -20,6 +20,14 @@
    <!-- Main JavaScript -->
    <script src="<?php echo BASE_URL; ?>/assets/js/main.js?v=<?php echo time(); ?>"></script>
    
+   <!-- Initialize Feather Icons -->
+   <script>
+       // Replace feather icons and reinitialize dropdowns
+       if (typeof feather !== 'undefined') {
+           feather.replace();
+       }
+   </script>
+   
    <!-- Push Notifications -->
    <script src="<?php echo BASE_URL; ?>/assets/js/notifications.js?v=<?php echo time(); ?>"></script>
    <script>
