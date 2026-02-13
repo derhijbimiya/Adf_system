@@ -760,7 +760,7 @@ $logoFile = 'logo-alt.png';
         <div class="header-content">
             <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                 <!-- Dynamic Logo -->
-                <img src="../../uploads/logos/developer-logo.png" 
+                <img src="<?php echo BASE_URL . '/' . DEVELOPER_LOGO; ?>" 
                      alt="Developer" 
                      id="headerLogo"
                      style="height: 45px; width: auto; object-fit: contain; background: white; padding: 0.5rem; border-radius: 8px;"
@@ -1255,7 +1255,7 @@ $logoFile = 'logo-alt.png';
                     allBtn.onclick = () => selectBusiness(null, 'All Businesses');
                     allBtn.innerHTML = `
                         <div class="business-icon" style="padding: 0;">
-                            <img src="../../uploads/logos/developer-logo.png" alt="All" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='🏢';">
+                            <img src="<?php echo BASE_URL . '/' . DEVELOPER_LOGO; ?>" alt="All" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='🏢';">
                         </div>
                         <div class="business-name">All<br>Businesses</div>
                     `;
@@ -1330,7 +1330,7 @@ $logoFile = 'logo-alt.png';
                 // Hide health indicator for All Businesses
                 document.getElementById('healthIndicator').style.display = 'none';
                 // Developer logo for All Businesses
-                headerLogo.src = '../../uploads/logos/developer-logo.png';
+                headerLogo.src = '<?php echo BASE_URL . '/' . DEVELOPER_LOGO; ?>';
                 headerLogo.alt = 'Developer';
                 headerTitle.textContent = 'All Businesses';
                 logoFallback.innerHTML = '👨‍💻';
