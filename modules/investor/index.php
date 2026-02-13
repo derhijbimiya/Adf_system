@@ -125,7 +125,7 @@ try {
     $expensesMap = [];
 }
 
-$pageTitle = 'Manajemen Investor';
+$pageTitle = 'Invest & Projek';
 
 // Inline styles using CSS variables
 $inlineStyles = '
@@ -133,160 +133,180 @@ $inlineStyles = '
 .investor-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1.25rem;
 }
 
 .investor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .investor-header h1 {
-    font-size: 2rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: white;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .btn-add {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: rgba(255,255,255,0.2);
     color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.5rem 1rem;
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    backdrop-filter: blur(10px);
 }
 
 .btn-add:hover {
+    background: rgba(255,255,255,0.3);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
 .tabs {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--border-color);
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    background: var(--bg-secondary);
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 .tab-btn {
-    padding: 1rem 1.5rem;
-    background: none;
+    padding: 0.6rem 1rem;
+    background: transparent;
     border: none;
-    border-bottom: 3px solid transparent;
+    border-radius: 6px;
     font-weight: 600;
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .tab-btn.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 }
 
-.tab-btn:hover {
+.tab-btn:hover:not(.active) {
+    background: var(--bg-tertiary);
     color: #667eea;
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-card {
     background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 1rem;
+    border-radius: 10px;
+    padding: 0.875rem;
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
-    overflow: hidden;
     position: relative;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.stat-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card h3 {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0 0 0.3rem 0;
+    letter-spacing: 0.3px;
+    margin: 0 0 0.25rem 0;
 }
 
 .stat-card .value {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0.3rem 0;
+    margin: 0.2rem 0;
 }
 
 .stat-card .label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.7rem;
+    color: var(--text-muted);
 }
 
 .content-section {
     background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 2rem;
+    border-radius: 10px;
+    padding: 1rem;
     border: 1px solid var(--border-color);
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .section-title {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 1.5rem 0;
-    padding-bottom: 1rem;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.85rem;
 }
 
 .data-table thead {
-    background: var(--bg-tertiary, rgba(0, 0, 0, 0.05));
+    background: var(--bg-tertiary, rgba(0, 0, 0, 0.03));
 }
 
 .data-table th {
-    padding: 1rem;
+    padding: 0.75rem;
     text-align: left;
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     border-bottom: 1px solid var(--border-color);
 }
 
 .data-table td {
-    padding: 1rem;
+    padding: 0.75rem;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
 }
@@ -296,40 +316,41 @@ $inlineStyles = '
 }
 
 .data-table tbody tr:hover {
-    background: var(--bg-tertiary, rgba(102, 126, 234, 0.05));
+    background: var(--bg-tertiary, rgba(102, 126, 234, 0.03));
 }
 
 .status-badge {
     display: inline-block;
-    padding: 0.375rem 0.875rem;
-    border-radius: 6px;
-    font-size: 0.875rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 5px;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
 .status-active {
-    background: #c6f6d5;
-    color: #22543d;
+    background: #dcfce7;
+    color: #166534;
 }
 
 .status-inactive {
-    background: #fed7d7;
-    color: #742a2a;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .amount {
     font-family: "Courier New", monospace;
     font-weight: 600;
     color: #667eea;
+    font-size: 0.85rem;
 }
 
 .action-links {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .action-links a {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -342,20 +363,20 @@ $inlineStyles = '
 
 .empty-state {
     text-align: center;
-    padding: 3rem 2rem;
+    padding: 2rem 1.5rem;
     color: var(--text-secondary);
 }
 
 .empty-state svg {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 0.75rem;
+    opacity: 0.4;
     stroke: var(--text-secondary);
 }
 
 .empty-state p {
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0;
 }
 
@@ -369,27 +390,27 @@ $inlineStyles = '
 
 .accounting-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .accounting-item {
-    background: var(--bg-tertiary, rgba(0, 0, 0, 0.05));
-    padding: 1rem;
+    background: var(--bg-tertiary, rgba(0, 0, 0, 0.03));
+    padding: 0.75rem;
     border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-left: 3px solid #667eea;
 }
 
 .accounting-item label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .accounting-item .value {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-primary);
     font-family: "Courier New", monospace;
@@ -407,28 +428,30 @@ include '../../includes/header.php';
 <div class="investor-container">
     <!-- Header -->
     <div class="investor-header">
-        <h1>💼 Manajemen Investor & Project</h1>
-        <button class="btn-add">+ Tambah Investor</button>
+        <h1><i data-feather="briefcase" style="width: 22px; height: 22px;"></i> Invest & Projek</h1>
+        <button class="btn-add" onclick="showAddInvestorModal()">+ Tambah Investor</button>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
-        <button class="tab-btn" data-tab="finance">Keuangan (Uang Keluar)</button>
-        <button class="tab-btn" data-tab="investor">Daftar Investor</button>
-        <button class="tab-btn" data-tab="project">Daftar Project</button>
-        <button class="tab-btn" data-tab="accounting">Laporan Akuntansi</button>
+        <button class="tab-btn active" data-tab="dashboard"><i data-feather="pie-chart" style="width: 14px; height: 14px; margin-right: 4px;"></i>Dashboard</button>
+        <button class="tab-btn" data-tab="finance"><i data-feather="credit-card" style="width: 14px; height: 14px; margin-right: 4px;"></i>Keuangan</button>
+        <button class="tab-btn" data-tab="investor"><i data-feather="users" style="width: 14px; height: 14px; margin-right: 4px;"></i>Investor</button>
+        <button class="tab-btn" data-tab="project"><i data-feather="folder" style="width: 14px; height: 14px; margin-right: 4px;"></i>Project</button>
+        <button class="tab-btn" data-tab="accounting"><i data-feather="file-text" style="width: 14px; height: 14px; margin-right: 4px;"></i>Laporan</button>
     </div>
 
     <!-- Dashboard Tab -->
     <div id="dashboard" class="tab-content active">
         
         <!-- Project Filter -->
-        <div style="margin-bottom: 2rem; background: white; padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem;">
-            <label style="font-weight: 600; color: var(--text-secondary);">Pilih Project:</label>
-            <form id="projectFilterForm" method="GET" style="margin: 0; flex: 1;">
-                <select name="project_id" onchange="this.form.submit()" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; max-width: 300px; font-size: 1rem;">
-                    <option value="all" <?php echo $selectedProjectId === 'all' ? 'selected' : ''; ?>>-- Global Overview (Semua) --</option>
+        <div style="margin-bottom: 1rem; background: var(--bg-secondary); padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;">
+                <i data-feather="filter" style="width: 14px; height: 14px;"></i> Filter:
+            </label>
+            <form id="projectFilterForm" method="GET" style="margin: 0; flex: 1; min-width: 200px;">
+                <select name="project_id" onchange="this.form.submit()" style="padding: 0.45rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; max-width: 280px; font-size: 0.85rem; background: var(--bg-primary);">
+                    <option value="all" <?php echo $selectedProjectId === 'all' ? 'selected' : ''; ?>>Global Overview (Semua)</option>
                     <?php foreach ($projects as $p): ?>
                         <option value="<?php echo $p['id']; ?>" <?php echo $selectedProjectId == $p['id'] ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($p['name']); ?>
@@ -439,34 +462,34 @@ include '../../includes/header.php';
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card" style="border-left: 4px solid #10b981;">
-                <h3>💰 Total Dana Masuk <?php echo $selectedProjectId !== 'all' ? '(Budget)' : '(Modal)'; ?></h3>
+            <div class="stat-card" style="border-left: 3px solid #10b981;">
+                <h3>💰 Dana Masuk <?php echo $selectedProjectId !== 'all' ? '(Budget)' : '(Modal)'; ?></h3>
                 <div class="value">Rp <?php echo number_format($dashboardStats['inflow'] ?? 0, 0, ',', '.'); ?></div>
-                <div class="label"><?php echo $selectedProjectId !== 'all' ? 'Alokasi dana project' : 'Total dana investor'; ?></div>
+                <div class="label"><?php echo $selectedProjectId !== 'all' ? 'Alokasi dana' : 'Total investor'; ?></div>
             </div>
 
-            <div class="stat-card" style="border-left: 4px solid #ef4444;">
-                <h3>📤 Total Pengeluaran</h3>
+            <div class="stat-card" style="border-left: 3px solid #ef4444;">
+                <h3>📤 Pengeluaran</h3>
                 <div class="value">Rp <?php echo number_format($dashboardStats['outflow'] ?? 0, 0, ',', '.'); ?></div>
-                <div class="label"><?php echo $selectedProjectId !== 'all' ? 'Pengeluaran project ini' : 'Semua pengeluaran system'; ?></div>
+                <div class="label"><?php echo $selectedProjectId !== 'all' ? 'Project ini' : 'Semua system'; ?></div>
             </div>
 
-            <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+            <div class="stat-card" style="border-left: 3px solid #3b82f6;">
                 <h3>📊 Sisa Dana</h3>
                 <div class="value">Rp <?php echo number_format(($dashboardStats['inflow'] - $dashboardStats['outflow']) ?? 0, 0, ',', '.'); ?></div>
-                <div class="label">Balance tersedia</div>
+                <div class="label">Balance</div>
             </div>
             
             <?php if ($selectedProjectId === 'all'): ?>
-            <div class="stat-card">
-                <h3>👥 Total Investor</h3>
+            <div class="stat-card" style="border-left: 3px solid #8b5cf6;">
+                <h3>👥 Investor</h3>
                 <div class="value"><?php echo count($investors) ?? 0; ?></div>
                 <div class="label">Investor aktif</div>
             </div>
             <?php else: ?>
-            <div class="stat-card">
-                <h3>📅 Project Status</h3>
-                <div class="value" style="font-size: 1rem; text-transform: uppercase;">
+            <div class="stat-card" style="border-left: 3px solid #8b5cf6;">
+                <h3>📅 Status</h3>
+                <div class="value" style="font-size: 0.95rem; text-transform: uppercase;">
                     <?php echo htmlspecialchars($project['status'] ?? 'Active'); ?>
                 </div>
                 <div class="label"><?php echo htmlspecialchars($project['location'] ?? ''); ?></div>
@@ -476,9 +499,9 @@ include '../../includes/header.php';
         
         <!-- Recent Transactions Section -->
         <div class="content-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                <h3 class="section-title" style="margin: 0; border: none; padding: 0;">⏱️ Transaksi Terbaru</h3>
-                <a href="#" onclick="document.querySelector('[data-tab=\'finance\']').click(); return false;" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Lihat Semua &rarr;</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                <h3 class="section-title" style="margin: 0; border: none; padding: 0;"><i data-feather="clock" style="width: 16px; height: 16px;"></i> Transaksi Terbaru</h3>
+                <a href="#" onclick="document.querySelector('[data-tab=\'finance\']').click(); return false;" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 0.8rem;">Lihat Semua →</a>
             </div>
             
             <table class="data-table">
@@ -519,15 +542,15 @@ include '../../includes/header.php';
 
     <!-- Old Charts Grid (Hidden if specific project is selected to keep it clean, or we can keep it) -->
     <?php if ($selectedProjectId === 'all'): ?>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1.25rem;">
         <!-- Chart 1: Uang Masuk -->
         <div class="content-section">
-            <h3 class="section-title">📥 Total Uang Masuk Per Investor</h3>
-            <div style="height: 250px; position: relative;">
+            <h3 class="section-title"><i data-feather="download" style="width: 16px; height: 16px;"></i> Dana Masuk Per Investor</h3>
+            <div style="height: 200px; position: relative;">
                 <canvas id="chartModalMasuk"></canvas>
             </div>
-            <div style="margin-top: 15px; max-height: 150px; overflow-y: auto;">
-                <table style="width: 100%; font-size: 0.85rem;">
+            <div style="margin-top: 10px; max-height: 120px; overflow-y: auto;">
+                <table style="width: 100%; font-size: 0.8rem;">
                     <?php foreach ($investors as $inv): ?>
                     <tr style="border-bottom: 1px dashed #eee;">
                         <td style="padding: 6px 0; color: #666;"><?php echo htmlspecialchars($inv['name']); ?></td>
@@ -542,24 +565,24 @@ include '../../includes/header.php';
 
         <!-- Chart 2: Uang Keluar -->
         <div class="content-section">
-            <h3 class="section-title">📤 Perbandingan Modal vs Pengeluaran</h3>
-            <div style="height: 250px; position: relative; display: flex; justify-content: center;">
+            <h3 class="section-title"><i data-feather="bar-chart-2" style="width: 16px; height: 16px;"></i> Modal vs Pengeluaran</h3>
+            <div style="height: 200px; position: relative; display: flex; justify-content: center;">
                 <canvas id="chartModalKeluar"></canvas>
             </div>
         </div>
 
         <!-- Chart 3: Progres Project -->
         <div class="content-section">
-            <h3 class="section-title">⏳ Progres Pengeluaran Project</h3>
-            <div style="height: 250px; position: relative;">
+            <h3 class="section-title"><i data-feather="activity" style="width: 16px; height: 16px;"></i> Progres Pengeluaran</h3>
+            <div style="height: 200px; position: relative;">
                 <canvas id="chartProgresProject"></canvas>
             </div>
         </div>
 
         <!-- Chart 4: Detail Pengeluaran -->
         <div class="content-section">
-            <h3 class="section-title">💸 Total Pengeluaran Per Project</h3>
-            <div style="height: 250px; position: relative;">
+            <h3 class="section-title"><i data-feather="pie-chart" style="width: 16px; height: 16px;"></i> Pengeluaran Per Project</h3>
+            <div style="height: 200px; position: relative;">
                 <canvas id="chartDetailPengeluaran"></canvas>
             </div>
         </div>
@@ -569,7 +592,7 @@ include '../../includes/header.php';
 
     <!-- Investors Tab -->
     <div id="investor" class="tab-content">
-        <h2 class="section-title">📋 Daftar Investor</h2>
+        <h2 class="section-title"><i data-feather="users" style="width: 18px; height: 18px;"></i> Daftar Investor</h2>
         
         <?php if (empty($investors)): ?>
         <div class="empty-state">
@@ -621,7 +644,7 @@ include '../../includes/header.php';
     <!-- Projects Tab -->
     <div id="project" class="tab-content">
     <div class="content-section">
-        <h2 class="section-title">📌 Daftar Project</h2>
+        <h2 class="section-title"><i data-feather="folder" style="width: 18px; height: 18px;"></i> Daftar Project</h2>
         
         <?php if (empty($projects)): ?>
         <div class="empty-state">
@@ -679,7 +702,7 @@ include '../../includes/header.php';
     <!-- Expense Input / Finance Tab -->
     <div id="finance" class="tab-content">
     <div class="content-section">
-        <h2 class="section-title">💸 Keuangan (Uang Keluar) & Input Pengeluaran</h2>
+        <h2 class="section-title"><i data-feather="credit-card" style="width: 18px; height: 18px;"></i> Keuangan & Input Pengeluaran</h2>
         
         <form id="expenseForm" method="POST" action="save-expense.php" style="background: var(--bg-tertiary, rgba(0,0,0,0.05)); padding: 2rem; border-radius: 8px;">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">

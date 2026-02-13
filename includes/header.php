@@ -325,22 +325,12 @@ if (isset($_SESSION['user_id'])) {
                     </li>
                     <?php endif; ?>
                     
-                    <!-- Investor Menu -->
+                    <!-- Invest & Projek Menu -->
                     <?php if ($auth->hasPermission('investor')): ?>
                     <li class="nav-item">
                         <a href="<?php echo BASE_URL; ?>/modules/investor/" class="nav-link <?php echo activeMenu('investor'); ?>">
                             <i data-feather="briefcase" class="nav-icon"></i>
-                            <span>Investor</span>
-                        </a>
-                    </li>
-                    <?php endif; ?>
-                    
-                    <!-- Project Menu -->
-                    <?php if ($auth->hasPermission('project')): ?>
-                    <li class="nav-item">
-                        <a href="<?php echo BASE_URL; ?>/modules/project/" class="nav-link <?php echo activeMenu('project'); ?>">
-                            <i data-feather="layers" class="nav-icon"></i>
-                            <span>Project</span>
+                            <span>Invest & Projek</span>
                         </a>
                     </li>
                     <?php endif; ?>
